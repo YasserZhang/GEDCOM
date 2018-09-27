@@ -89,7 +89,7 @@ class Gedcom:
             raise("Birthday is not found for the individual {id_}".format(id_=indi_row['id']))
         if 'Death' in indi_row:
             indi_row['Age'] = indi_row['Death'].year - indi_row['Birthday'].year
-            indi_row['Alive'] = True
+            indi_row['Alive'] = False
         else:
             indi_row['Age'] = date.today().year - indi_row['Birthday'].year
             indi_row['Alive'] = True
@@ -179,7 +179,7 @@ class Gedcom:
         for key in self.__family_dict:
             fam = self.__family_dict[key]
             family_row = fam.get_family()
-            family_row = [x if x else "NA" for x in family_row]
+            family_row = ["NA" if x is None else x for x in family_row]
             family_table.add_row(family_row)
         print(family_table)
 
@@ -197,7 +197,7 @@ class Gedcom:
         for key in self.__individual_dict:
             individual = self.__individual_dict[key]
             individual_row = individual.get_individual()
-            individual_row = [x if x else "NA" for x in individual_row]
+            individual_row = ["NA" if x is None else x for x in individual_row]
             individual_table.add_row(individual_row)
         print(individual_table)
 
