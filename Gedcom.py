@@ -1,6 +1,7 @@
 # design classes
 # global names
 from datetime import date
+import prettytable
 INFO_TAGS = {'NAME': 'Name', 'SEX': 'Gender'}
 FAM_TAGS = {'FAMC': 'Child', 'FAMS': 'Spouse'}
 DATE_TAGS = {'BIRT': 'Birthday', 'DEAT': 'Death'}
@@ -55,13 +56,13 @@ class Gedcom:
                     else:
                         i += 1
                 else:
-                    print("Warning: This line may contain incorrect format or be skipped.")
-                    print(lines[i])
+                    #print("Warning: This line may contain incorrect format or be skipped.")
+                    #print(lines[i])
                     i += 1
         self.__connect()
         self.__update_derivative_attributes()
-        self.list_individuals()
-        self.list_families()
+        #self.print_individuals()
+        #self.print_families()
 
     def __generate_individual_dict(self, lines, start_index, indi_row):
         while start_index < len(lines):
@@ -88,11 +89,11 @@ class Gedcom:
             raise("Birthday is not found for the individual {id_}".format(id_=indi_row['id']))
         if 'Death' in indi_row:
             indi_row['Age'] = indi_row['Death'].year - indi_row['Birthday'].year
-            indi_row['Alive'] = 'True'
+            indi_row['Alive'] = True
         else:
             indi_row['Age'] = date.today().year - indi_row['Birthday'].year
-            indi_row['Alive'] = 'False'
-            indi_row['Death'] = 'NA'
+            indi_row['Alive'] = True
+            indi_row['Death'] = None
         return indi_row, start_index
 
     def __generate_family_dict(self, lines, start_index, fam_row):
@@ -165,15 +166,108 @@ class Gedcom:
     def __add_a_family(self, fam):
         self.__family_dict[fam.get_id()] = fam
 
-    def list_families(self):
+    def print_families(self):
+        family_table = prettytable.PrettyTable()
+        family_table.field_names = ["ID",
+                                    "Married",
+                                    "Divorced",
+                                    "Husband_ID",
+                                    "Husband Name",
+                                    "Wife Id",
+                                    "Wife Name",
+                                    "Children"]
         for key in self.__family_dict:
             fam = self.__family_dict[key]
-            print(fam.get_family())
+            family_row = fam.get_family()
+            family_row = [x if x else "NA" for x in family_row]
+            family_table.add_row(family_row)
+        print(family_table)
 
-    def list_individuals(self):
+    def print_individuals(self):
+        individual_table = prettytable.PrettyTable()
+        individual_table.field_names = ['ID',
+                                        'Name',
+                                        'Gender',
+                                        'Birthday',
+                                        'Age',
+                                        'Alive',
+                                        'Death',
+                                        'Spouse',
+                                        'Child']
         for key in self.__individual_dict:
-            indi = self.__individual_dict[key]
-            print(indi.get_individual())
+            individual = self.__individual_dict[key]
+            individual_row = individual.get_individual()
+            individual_row = [x if x else "NA" for x in individual_row]
+            individual_table.add_row(individual_row)
+        print(individual_table)
+
+    def get_families(self):
+        return self.__family_dict
+
+    def get_individuals(self):
+        return self.__individual_dict
+
+    # US05 Marriage before Divorce
+    def check_marriage_before_divorce(self):
+        families = self.get_families()
+        results = {}
+        for key in families:
+            family = families[key]
+            fam_id = family.get_id()
+            marriage_date = family.get_marriage_date()
+            divorce_date = family.get_divorce_date()
+            result = self.__compare_marriage_divorce(marriage_date, divorce_date, fam_id)
+            results[fam_id] = result
+        return results
+
+    @staticmethod
+    def __compare_marriage_divorce(marriage_date, divorce_date, fam_id):
+        if marriage_date and divorce_date:
+            if marriage_date > divorce_date:
+                print("Error: Family {id_}'s marriage Date({m_t}) is later than the divorce date ({d_t}).".format(
+                    id_=fam_id, m_t=marriage_date, d_t=divorce_date))
+                return False
+        elif marriage_date is None:
+            if divorce_date:
+                print("Error: Family {id_} has divorce date ({d_t}) but no marriage date.".format(
+                    id_=fam_id, d_t=divorce_date))
+                return False
+            else:
+                print("Family {id_} does not have marriage date".format(id_=fam_id))
+                return False
+        return True
+
+    def check_divorce_before_death(self):
+        individuals = self.get_individuals()
+        checked_results = {}
+        for indi_key in individuals:
+            individual = individuals[indi_key]
+            death_date = individual.get_death()
+            indi_id = individual.get_id()
+            own_families = individual.get_own_families()
+            if death_date is None or len(own_families) == 0:
+                checked_results[indi_id] = "NA"
+                continue
+            for fam_key in own_families:
+                own_family = own_families[fam_key]
+                divorce_date = own_family.get_divorce_date()
+                result = self.__compare_divorce_death(divorce_date, death_date, indi_id)
+                checked_results[indi_id] = result
+        return checked_results
+
+    @staticmethod
+    def __compare_divorce_death(divorce_date, death_date, indi_id):
+        if divorce_date:
+            if divorce_date > death_date:
+                print("Error: Individual {i_id} has a divorce date {div_d} after the date of death {d_d}.".format(
+                    i_id=indi_id,
+                    div_d=divorce_date.strftime("%Y-%m-%d"),
+                    d_d=death_date.strftime("%Y-%m-%d")))
+                return "No"
+            else:
+                return "Yes"
+        else:
+            return "Yes"
 
 
 # Families
@@ -233,10 +327,10 @@ class Family:
         pass
 
     def get_marriage_date(self):
-        pass
+        return self.__married
 
     def get_divorce_date(self):
-        pass
+        return self.__divorced
 
 
 # Individual
@@ -275,7 +369,7 @@ class Individual:
     def get_individual(self):
         # list all information of the indi
         return [self.__id, self.__name, self.__gender,
-                self.__birth, self.__age, self.__alive,
+                self.__birth, self.__age, self.__alive, self.__death,
                 set([key for key in self.__parents_families]),
                 set([key for key in self.__own_families])]
 
@@ -301,10 +395,16 @@ class Individual:
         return set([key for key in self.__own_families])
 
     def get_parent_family_by_id(self, id_):
-        pass
+        return self.__parents_families[id_]
+
+    def get_parent_families(self):
+        return self.__parents_families
 
     def get_own_family_by_id(self, id_):
-        pass
+        return self.__own_families[id_]
+
+    def get_own_families(self):
+        return self.__own_families
 
     def set_parent_family_by_id(self, fam_id, fam):
         self.__parents_families[fam_id] = fam
