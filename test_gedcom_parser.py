@@ -1,6 +1,6 @@
 # unit testing gedcom parser
 import unittest
-from gedcom_parser import Gedcom
+from Gedcom import Gedcom
 
 
 class TestGedcomParser(unittest.TestCase):
