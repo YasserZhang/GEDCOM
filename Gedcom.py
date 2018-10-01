@@ -206,11 +206,11 @@ class Gedcom:
 
     def get_individuals(self):
         return self.__individual_dict
-    
+
     def get_individual_by_id(self, id_):
         return self.__individual_dict[id_]
 
-    # US05 Marriage before Divorce
+    # US04 Marriage before Divorce
     def check_marriage_before_divorce(self):
         families = self.get_families()
         results = {}
@@ -240,6 +240,7 @@ class Gedcom:
                 return False
         return True
 
+    # US06 Divorce before death
     def check_divorce_before_death(self):
         individuals = self.get_individuals()
         checked_results = {}
@@ -271,7 +272,7 @@ class Gedcom:
                 return "Yes"
         else:
             return "Yes"
-			
+
 	    # US05 Marriage before Death
     def check_marriage_before_death(self):
         individuals = self.get_individuals()
@@ -334,6 +335,48 @@ class Gedcom:
                 return "Yes"
         else:
             return "Yes"
+
+
+    # US 03 Individual birth after death
+    def check_birth_before_death(self):
+        individuals = self.get_individuals()
+        check_results = {}
+        for indi_key in individuals:
+            individual = individuals[indi_key]
+            birth_date = individual.get_birth()
+            death_date = individual.get_death()
+            indi_id = individual.get_id()
+            if death_date is not None and birth_date is not None:
+                if birth_date > death_date:
+                    check_results[indi_id] = "Error"
+                    print("ERROR Generated: Found an individual with birth date after death date")
+                else:
+                    check_results[indi_id] = "N/A"
+            else:
+                check_results[indi_id] = "N/A"
+        return check_results
+
+
+    # US 08 Child birth before Parents Marriage
+    def check_childbirth_before_parents_marriage(self):
+        families = self.get_families()
+        check_results = {}
+        for key in families:
+            family = families[key]
+            fam_id = family.get_id()
+            fam_marriage_date = family.get_marriage_date()
+            fam_children = family.list_children_ids()
+            for key in fam_children:
+                child = self.get_individual_by_id(key)
+                child_birthday = child.get_birth()
+                if fam_marriage_date is not None and child_birthday is not None:
+                    if fam_marriage_date < child_birthday:
+                        check_results[fam_id + "-" + child.get_id()] = "no"
+                    else:
+                        check_results[fam_id + "-" + child.get_id()] = "yes"
+                        print("ERROR Generated: Found a childs birth before their parents marriage date")
+        #print("This is check", check_results)
+        return check_results
 
 
 # Families
