@@ -275,7 +275,7 @@ class Gedcom:
                 return "Yes"
         else:
             return "Yes"
-			
+
 	    # US05 Marriage before Death
     def check_marriage_before_death(self):
         individuals = self.get_individuals()
@@ -352,7 +352,7 @@ class Gedcom:
             if death_date is not None and birth_date is not None:
                 if birth_date > death_date:
                     check_results[indi_id] = "Error"
-                    print("ERROR generated")
+                    #print("ERROR generated 1")
                 else:
                     check_results[indi_id] = "N/A"
             else:
@@ -377,7 +377,8 @@ class Gedcom:
                         check_results[fam_id + "-" + child.get_id()] = "no"
                     else:
                         check_results[fam_id + "-" + child.get_id()] = "yes"
-                        print("ERROR Generated")
+                        #print("ERROR Generated 2")
+        #print("This is check", check_results)
         return check_results
 
 
