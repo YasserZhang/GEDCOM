@@ -206,6 +206,9 @@ class Gedcom:
 
     def get_individuals(self):
         return self.__individual_dict
+    
+    def get_individual_by_id(self, id_):
+        return self.__individual_dict[id_]
 
     # US05 Marriage before Divorce
     def check_marriage_before_divorce(self):
