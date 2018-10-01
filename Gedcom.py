@@ -206,9 +206,6 @@ class Gedcom:
 
     def get_individuals(self):
         return self.__individual_dict
-    
-    def get_individual_by_id(self, id_):
-        return self.__individual_dict[id_]
 
     def get_individual_by_id(self, id_):
         return self.__individual_dict[id_]
