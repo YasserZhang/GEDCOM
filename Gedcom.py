@@ -271,6 +271,69 @@ class Gedcom:
                 return "Yes"
         else:
             return "Yes"
+			
+	    # US05 Marriage before Death
+    def check_marriage_before_death(self):
+        individuals = self.get_individuals()
+        checked_results = {}
+        for indi_key in individuals:
+            individual = individuals[indi_key]
+            death_date = individual.get_death()
+            indi_id = individual.get_id()
+            own_families = individual.get_own_families()
+            if death_date is None or len(own_families) == 0:
+                checked_results[indi_id] = "NA"
+                continue
+            for fam_key in own_families:
+                own_family = own_families[fam_key]
+                marriage_date = own_family.get_marriage_date()
+                result = self.__compare_marriage_death(marriage_date, death_date, indi_id)
+                checked_results[indi_id] = result
+        return checked_results
+
+    @staticmethod
+    def __compare_marriage_death(marriage_date, death_date, indi_id):
+        if marriage_date:
+            if marriage_date > death_date:
+                print("Error: Individual {i_id} has a marriage date {div_d} after the date of death {d_d}.".format(
+                    i_id=indi_id,
+                    div_d=marriage_date.strftime("%Y-%m-%d"),
+                    d_d=death_date.strftime("%Y-%m-%d")))
+                return "No"
+            else:
+                return "Yes"
+        else:
+            return "Yes"
+
+    # US10 Marriage after age fourteen
+    def check_marriage_after_fourteen(self):
+        individuals = self.get_individuals()
+        checked_results = {}
+        for indi_key in individuals:
+            individual = individuals[indi_key]
+            birth_date = individual.get_birth()
+            indi_id = individual.get_id()
+            own_families = individual.get_own_families()
+            for fam_key in own_families:
+                own_family = own_families[fam_key]
+                marriage_date = own_family.get_marriage_date()
+                result = self.__compare_marriage_age(marriage_date, birth_date, indi_id)
+                checked_results[indi_id] = result
+        return checked_results
+
+    @staticmethod
+    def __compare_marriage_age(marriage_date, birth_date, indi_id):
+        if marriage_date:
+            diff = abs(marriage_date.year - birth_date.year)
+            if diff < 14:
+                print("Error: Individual {i_id} has a marriage date {div_d} before the age of fourteen.".format(
+                    i_id=indi_id,
+                    div_d=marriage_date.strftime("%Y-%m-%d")))
+                return "No"
+            else:
+                return "Yes"
+        else:
+            return "Yes"
 
 
 # Families
