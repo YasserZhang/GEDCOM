@@ -20,9 +20,9 @@ class TestGedcomParser(unittest.TestCase):
             self.assertEqual(ground_truths[key], str(checked_results[key]))
         print("check_marriage_before_divorce test on {f} passed.".format(f=file_path))
 
-    def test_divorce_before_death(self,
-                                  file_path='test_files/Family.ged',
-                                  ground_truth_file_path='test_files/divorce_before_death.json'):
+    def test_divorce_before_death(self, 
+                    file_path='test_files/Family.ged', 
+                    ground_truth_file_path='test_files/divorce_before_death.json'):
         ged = Gedcom()
         ged.parse(file_path)
         ged.print_individuals()
@@ -34,10 +34,10 @@ class TestGedcomParser(unittest.TestCase):
             self.assertTrue(key in checked_results)
             self.assertEqual(ground_truths[key], checked_results[key])
         print("check_divorce_before_death test on {f} passed.".format(f=file_path))
-		
-	def test_marriage_before_death(self,
-                                  file_path='test_files/Family.ged',
-                                  ground_truth_file_path='test_files/marriage_before_death.json'):
+
+    def test_marriage_before_death(self, 
+                    file_path='test_files/Family.ged', 
+                    ground_truth_file_path='test_files/marriage_before_death.json'):
         ged = Gedcom()
         ged.parse(file_path)
         checked_results = ged.check_marriage_before_death()
@@ -49,9 +49,7 @@ class TestGedcomParser(unittest.TestCase):
             self.assertEqual(ground_truths[key], checked_results[key])
         print("check_marriage_before_death test on {f} passed.".format(f=file_path))
 
-    def test_marriage_after_fourteen(self,
-                                  file_path='test_files/Family.ged',
-                                  ground_truth_file_path='test_files/marriage_before_fourteen.json'):
+    def test_marriage_after_fourteen(self, file_path='test_files/Family.ged', ground_truth_file_path='test_files/marriage_before_fourteen.json'):
         ged = Gedcom()
         ged.parse(file_path)
         checked_results = ged.check_marriage_after_fourteen()
