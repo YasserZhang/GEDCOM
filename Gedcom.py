@@ -340,7 +340,7 @@ class Gedcom:
             return "Yes"
 
 
-    # user story 03 Child birth before death
+    # US 03 Individual birth after death
     def check_birth_before_death(self):
         individuals = self.get_individuals()
         check_results = {}
@@ -352,7 +352,7 @@ class Gedcom:
             if death_date is not None and birth_date is not None:
                 if birth_date > death_date:
                     check_results[indi_id] = "Error"
-                    #print("ERROR generated 1")
+                    print("ERROR Generated: Found an individual with birth date after death date")
                 else:
                     check_results[indi_id] = "N/A"
             else:
@@ -360,7 +360,7 @@ class Gedcom:
         return check_results
 
 
-    # user story 08
+    # US 08 Child birth before Parents Marriage
     def check_childbirth_before_parents_marriage(self):
         families = self.get_families()
         check_results = {}
@@ -377,7 +377,7 @@ class Gedcom:
                         check_results[fam_id + "-" + child.get_id()] = "no"
                     else:
                         check_results[fam_id + "-" + child.get_id()] = "yes"
-                        #print("ERROR Generated 2")
+                        print("ERROR Generated: Found a childs birth before their parents marriage date")
         #print("This is check", check_results)
         return check_results
 
