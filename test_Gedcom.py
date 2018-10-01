@@ -14,6 +14,7 @@ class TestGedcomParser(unittest.TestCase):
         checked_results = ged.check_marriage_before_divorce()
         with open(ground_truth_file_path, 'r') as f:
             ground_truths = json.load(f)
+        print(checked_results)
         for key in ground_truths:
             self.assertTrue(key in checked_results)
             self.assertEqual(ground_truths[key], str(checked_results[key]))
