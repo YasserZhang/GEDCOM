@@ -12,6 +12,7 @@ class TestGedcomParser(unittest.TestCase):
         ged = Gedcom()
         ged.parse(file_path)
         checked_results = ged.check_marriage_before_divorce()
+        print(checked_results)
         with open(ground_truth_file_path, 'r') as f:
             ground_truths = json.load(f)
         for key in ground_truths:
