@@ -61,7 +61,6 @@ class TestGedcomParser(unittest.TestCase):
             ground_truths = json.load(f)
         for key in ground_truths:
             self.assertTrue(key in check_results)
-            #print("This is ground", ground_truths[key])
             self.assertEqual(ground_truths[key], check_results[key])
         print("Check_ChildBirth_Before_ParentsMariage test passed on {f}".format(f=file_path))
 
