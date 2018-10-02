@@ -349,7 +349,7 @@ class Gedcom:
             if death_date is not None and birth_date is not None:
                 if birth_date > death_date:
                     check_results[indi_id] = "Error"
-                    print("ERROR Generated: Found an individual with birth date after death date")
+                    print("ERROR: Individual {i_id} has birth date after death date".format(i_id=indi_id))
                 else:
                     check_results[indi_id] = "N/A"
             else:
@@ -374,7 +374,7 @@ class Gedcom:
                         check_results[fam_id + "-" + child.get_id()] = "no"
                     else:
                         check_results[fam_id + "-" + child.get_id()] = "yes"
-                        print("ERROR Generated: Found a childs birth before their parents marriage date")
+                        print("ERROR: Found a child birth {c_birth} before their parents marriage date".format(c_birth=child_birthday))
         #print("This is check", check_results)
         return check_results
 
