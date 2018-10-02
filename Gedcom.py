@@ -375,7 +375,6 @@ class Gedcom:
                     else:
                         check_results[fam_id + "-" + child.get_id()] = "yes"
                         print("ERROR: Found a child birth {c_birth} before their parents marriage date".format(c_birth=child_birthday))
-        #print("This is check", check_results)
         return check_results
 
 
