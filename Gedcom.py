@@ -378,6 +378,36 @@ class Gedcom:
                         print("ERROR: Found a child birth {c_birth} before their parents marriage date".format(c_birth=child_birthday))
         return check_results
 
+    # Sprint 2
+    # US16 Male last names
+    def check_male_last_names(self):
+        families = self.get_families()
+        checked_results = {}
+        for fam_key in families:
+            family = families[fam_key]
+            fam_id = family.get_id()
+            husband = self.__individual_dict[family.get_husband_id()]
+            last_name = husband.get_name().split(" ")[1].strip()
+            wife = self.__individual_dict[family.get_wife_id()]
+            wife_last_name = wife.get_name().split(" ")[1].strip()
+            if wife_last_name != last_name:
+                print("ERROR: Individual {i_id}'s last name {i_ln} does not match family {f_id}'s name {f_n}.".format(
+                    i_id=wife.get_id(),i_ln=wife_last_name,f_id=fam_id,f_n=last_name))
+                checked_results[fam_id] = "No"
+            children = family.get_children()
+            for _, child in children.items():
+                child_last_name = child.get_name().split(" ")[1].strip()
+                if child_last_name != last_name:
+                    print("ERROR: Individual {i_id}'s last name {i_ln} does not match family {f_id}'s name {f_n}.".format(
+                                    i_id=child.get_id(),
+                                    i_ln=child_last_name,
+                                    f_id=fam_id,
+                                    f_n=last_name))
+                    checked_results[fam_id] = "No"
+            if fam_id not in checked_results:
+                checked_results[fam_id] = "Yes"
+        return checked_results
+
     #US 02 Birth before Marriage
     def check_birth_before_marriage(self):
         individuals = self.get_individuals()
@@ -435,7 +465,6 @@ class Gedcom:
     #US 13 Siblings spacing
     #def check_siblings_spacing(self):
      #   individuals = self.get_individuals()
-        
 
 # Families
 class Family:
@@ -490,8 +519,11 @@ class Family:
     def set_child_by_id(self, child_key, child):
         self.__children[child_key] = child
 
-    def get_child_by_id(self):
-        pass
+    def get_child_by_id(self, id_):
+        return self.__children[id_]
+    
+    def get_children(self):
+        return self.__children
 
     def get_marriage_date(self):
         return self.__married
