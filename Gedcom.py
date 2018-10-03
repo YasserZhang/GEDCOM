@@ -1,6 +1,7 @@
 # design classes
 # global names
 from datetime import date
+import datetime
 import prettytable
 INFO_TAGS = {'NAME': 'Name', 'SEX': 'Gender'}
 FAM_TAGS = {'FAMC': 'Child', 'FAMS': 'Spouse'}
@@ -207,7 +208,10 @@ class Gedcom:
     def get_individuals(self):
         return self.__individual_dict
 
-    # US05 Marriage before Divorce
+    def get_individual_by_id(self, id_):
+        return self.__individual_dict[id_]
+
+    # US04 Marriage before Divorce
     def check_marriage_before_divorce(self):
         families = self.get_families()
         results = {}
@@ -237,6 +241,7 @@ class Gedcom:
                 return False
         return True
 
+    # US06 Divorce before death
     def check_divorce_before_death(self):
         individuals = self.get_individuals()
         checked_results = {}
@@ -269,7 +274,166 @@ class Gedcom:
         else:
             return "Yes"
 
+	    # US05 Marriage before Death
+    def check_marriage_before_death(self):
+        individuals = self.get_individuals()
+        checked_results = {}
+        for indi_key in individuals:
+            individual = individuals[indi_key]
+            death_date = individual.get_death()
+            indi_id = individual.get_id()
+            own_families = individual.get_own_families()
+            if death_date is None or len(own_families) == 0:
+                checked_results[indi_id] = "NA"
+                continue
+            for fam_key in own_families:
+                own_family = own_families[fam_key]
+                marriage_date = own_family.get_marriage_date()
+                result = self.__compare_marriage_death(marriage_date, death_date, indi_id)
+                checked_results[indi_id] = result
+        return checked_results
 
+    @staticmethod
+    def __compare_marriage_death(marriage_date, death_date, indi_id):
+        if marriage_date:
+            if marriage_date > death_date:
+                print("Error: Individual {i_id} has a marriage date {div_d} after the date of death {d_d}.".format(
+                    i_id=indi_id,
+                    div_d=marriage_date.strftime("%Y-%m-%d"),
+                    d_d=death_date.strftime("%Y-%m-%d")))
+                return "No"
+            else:
+                return "Yes"
+        else:
+            return "Yes"
+
+    # US10 Marriage after age fourteen
+    def check_marriage_after_fourteen(self):
+        individuals = self.get_individuals()
+        checked_results = {}
+        for indi_key in individuals:
+            individual = individuals[indi_key]
+            birth_date = individual.get_birth()
+            indi_id = individual.get_id()
+            own_families = individual.get_own_families()
+            for fam_key in own_families:
+                own_family = own_families[fam_key]
+                marriage_date = own_family.get_marriage_date()
+                result = self.__compare_marriage_age(marriage_date, birth_date, indi_id)
+                checked_results[indi_id] = result
+        return checked_results
+
+    @staticmethod
+    def __compare_marriage_age(marriage_date, birth_date, indi_id):
+        if marriage_date:
+            diff = abs(marriage_date.year - birth_date.year)
+            if diff < 14:
+                print("Error: Individual {i_id} has a marriage date {div_d} before the age of fourteen.".format(
+                    i_id=indi_id,
+                    div_d=marriage_date.strftime("%Y-%m-%d")))
+                return "No"
+            else:
+                return "Yes"
+        else:
+            return "Yes"
+
+
+    # US 03 Individual birth after death
+    def check_birth_before_death(self):
+        individuals = self.get_individuals()
+        check_results = {}
+        for indi_key in individuals:
+            individual = individuals[indi_key]
+            birth_date = individual.get_birth()
+            death_date = individual.get_death()
+            indi_id = individual.get_id()
+            if death_date is not None and birth_date is not None:
+                if birth_date > death_date:
+                    check_results[indi_id] = "Error"
+                    print("ERROR: Individual {i_id} has birth date after death date".format(i_id=indi_id))
+                else:
+                    check_results[indi_id] = "N/A"
+            else:
+                check_results[indi_id] = "N/A"
+        return check_results
+
+
+    # US 08 Child birth before Parents Marriage
+    def check_childbirth_before_parents_marriage(self):
+        families = self.get_families()
+        check_results = {}
+        for key in families:
+            family = families[key]
+            fam_id = family.get_id()
+            fam_marriage_date = family.get_marriage_date()
+            fam_children = family.list_children_ids()
+            for key in fam_children:
+                child = self.get_individual_by_id(key)
+                child_birthday = child.get_birth()
+                if fam_marriage_date is not None and child_birthday is not None:
+                    if fam_marriage_date < child_birthday:
+                        check_results[fam_id + "-" + child.get_id()] = "no"
+                    else:
+                        check_results[fam_id + "-" + child.get_id()] = "yes"
+                        print("ERROR: Found a child birth {c_birth} before their parents marriage date".format(c_birth=child_birthday))
+        return check_results
+
+    #US 02 Birth before Marriage
+    def check_birth_before_marriage(self):
+        individuals = self.get_individuals()
+        checked_results = {}
+        for indi_key in individuals:
+            individual = individuals[indi_key]
+            birth_date = individual.get_birth()
+            indi_id = individual.get_id()
+            own_families = individual.get_own_families()
+            for fam_key in own_families:
+                own_family = own_families[fam_key]
+                marriage_date = own_family.get_marriage_date()
+                result = self.__compare_marriage_birth(marriage_date, birth_date, indi_id)
+                checked_results[indi_id] = result
+        return checked_results
+
+    @staticmethod
+    def __compare_marriage_birth(marriage_date, birth_date, indi_id):
+        if marriage_date:
+            if marriage_date < birth_date:
+                print("Error: Individual {i_id} has a marriage date {div_d} before the individual is born.".format(
+                    i_id=indi_id,
+                    div_d=marriage_date.strftime("%Y-%m-%d")))
+                return "No"
+            else: 
+                return "Yes"
+        else:
+            return "N/A"
+        
+    #US 07 Less than 150 years old 
+    def check_age_lessthan_150(self): 
+        individuals = self.get_individuals()
+        check_results = {}
+        for indi_key in individuals:
+            individual = individuals[indi_key]
+            birth_date = individual.get_birth()
+            #birth_date = datetime.datetime.strptime(birth, '%d %b %Y')
+            death_date = individual.get_death()
+            #death_date = datetime.datetime.strptime(death, '%d %b %Y')
+            indi_id = individual.get_id()
+            present_date = datetime.datetime.today().strftime('%d %b %Y')
+            if death_date: 
+                if death_date.year - birth_date.year >= 150:
+                    check_results[indi_id] = "Error"
+                    print("ERROR: Individual {i_id} age is more than 150 which is not possible".format(i_id=indi_id))
+                else: 
+                    check_results[indi_id] = "YES"
+            else: 
+                if present_date.year - birth_date.year >= 150:
+                    check_results[indi_id] = "Error"
+                    print("ERROR: Individual {i_id} age is more than 150 which is not possible".format(i_id=indi_id))
+                else: 
+                    check_results[indi_id] = "YES"
+        print("Resuls", check_results)
+        return check_results
+    
 # Families
 class Family:
     def __init__(self):
