@@ -385,25 +385,23 @@ class Gedcom:
         for fam_key in families:
             family = families[fam_key]
             fam_id = family.get_id()
-            husband = self.__individual_dict[family.get_husband_by_id()]
+            husband = self.__individual_dict[family.get_husband_id()]
             last_name = husband.get_name().split(" ")[1].strip()
-            wife = self.__individual_dict[family.get_wife_by_id()]
+            wife = self.__individual_dict[family.get_wife_id()]
             wife_last_name = wife.get_name().split(" ")[1].strip()
             if wife_last_name != last_name:
-                print("ERROR: Individual {i_id}'s last name {i_ln} in family {f_id}'s name {f_n}.".format(
-                                    i_id=wife.get_id(),
-                                    i_ln=wife_last_name,
-                                    f_id=fam_id,
-                                    f_n=last_name)
-            children = families.get_children()
+                print("ERROR: Individual {i_id}'s last name {i_ln} does not match family {f_id}'s name {f_n}.".format(
+                    i_id=wife.get_id(),i_ln=wife_last_name,f_id=fam_id,f_n=last_name))
+                checked_results[fam_id] = "No"
+            children = family.get_children()
             for _, child in children.items():
                 child_last_name = child.get_name().split(" ")[1].strip()
                 if child_last_name != last_name:
-                    print("ERROR: Individual {i_id}'s last name {i_ln} in family {f_id}'s name {f_n}.".format(
+                    print("ERROR: Individual {i_id}'s last name {i_ln} does not match family {f_id}'s name {f_n}.".format(
                                     i_id=child.get_id(),
                                     i_ln=child_last_name,
                                     f_id=fam_id,
-                                    f_n=last_name)
+                                    f_n=last_name))
                     checked_results[fam_id] = "No"
             if fam_id not in checked_results:
                 checked_results[fam_id] = "Yes"
