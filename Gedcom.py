@@ -1,6 +1,7 @@
 # design classes
 # global names
 from datetime import date
+from datetime import datetime, timedelta, date
 import prettytable
 INFO_TAGS = {'NAME': 'Name', 'SEX': 'Gender'}
 FAM_TAGS = {'FAMC': 'Child', 'FAMS': 'Spouse'}
@@ -407,6 +408,63 @@ class Gedcom:
                 checked_results[fam_id] = "Yes"
         return checked_results
 
+    #US 02 Birth before Marriage
+    def check_birth_before_marriage(self):
+        individuals = self.get_individuals()
+        checked_results = {}
+        for indi_key in individuals:
+            individual = individuals[indi_key]
+            birth_date = individual.get_birth()
+            indi_id = individual.get_id()
+            own_families = individual.get_own_families()
+            for fam_key in own_families:
+                own_family = own_families[fam_key]
+                marriage_date = own_family.get_marriage_date()
+                result = self.__compare_marriage_birth(marriage_date, birth_date, indi_id)
+                checked_results[indi_id] = result
+        return checked_results
+
+    @staticmethod
+    def __compare_marriage_birth(marriage_date, birth_date, indi_id):
+        if marriage_date:
+            if marriage_date < birth_date:
+                print("Error: Individual {i_id} has a marriage date {div_d} before the individual is born.".format(
+                    i_id=indi_id,
+                    div_d=marriage_date.strftime("%Y-%m-%d")))
+                return "No"
+            else: 
+                return "Yes"
+        else:
+            return "N/A"
+        
+    #US 07 Less than 150 years old 
+    def check_age_lessthan_150(self): 
+        individuals = self.get_individuals()
+        check_results = {}
+        for indi_key in individuals:
+            individual = individuals[indi_key]
+            birth_date = individual.get_birth()
+            death_date = individual.get_death()
+            indi_id = individual.get_id()
+            present_date = date.today()
+            limit = timedelta(days=150*365)
+            if death_date: 
+                if death_date - birth_date >= limit:
+                    check_results[indi_id] = "Error"
+                    print("ERROR: Individual {i_id} age is more than 150 which is not possible".format(i_id=indi_id))
+                else: 
+                    check_results[indi_id] = "Yes"
+            else: 
+                if present_date - birth_date >= limit:
+                    check_results[indi_id] = "Error"
+                    print("ERROR: Individual {i_id} age is more than 150 which is not possible".format(i_id=indi_id))
+                else: 
+                    check_results[indi_id] = "Yes"
+        return check_results
+        
+    #US 13 Siblings spacing
+    #def check_siblings_spacing(self):
+     #   individuals = self.get_individuals()
 
 # Families
 class Family:
