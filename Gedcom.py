@@ -430,7 +430,6 @@ class Gedcom:
                     print("ERROR: Individual {i_id} age is more than 150 which is not possible".format(i_id=indi_id))
                 else: 
                     check_results[indi_id] = "Yes"
-        print("Resuls", check_results)
         return check_results
         
     #US 13 Siblings spacing
