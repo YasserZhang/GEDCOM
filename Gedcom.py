@@ -1,6 +1,7 @@
 # design classes
 # global names
 from datetime import date
+import datetime
 import prettytable
 INFO_TAGS = {'NAME': 'Name', 'SEX': 'Gender'}
 FAM_TAGS = {'FAMC': 'Child', 'FAMS': 'Spouse'}
@@ -377,7 +378,62 @@ class Gedcom:
                         print("ERROR: Found a child birth {c_birth} before their parents marriage date".format(c_birth=child_birthday))
         return check_results
 
+    #US 02 Birth before Marriage
+    def check_birth_before_marriage(self):
+        individuals = self.get_individuals()
+        checked_results = {}
+        for indi_key in individuals:
+            individual = individuals[indi_key]
+            birth_date = individual.get_birth()
+            indi_id = individual.get_id()
+            own_families = individual.get_own_families()
+            for fam_key in own_families:
+                own_family = own_families[fam_key]
+                marriage_date = own_family.get_marriage_date()
+                result = self.__compare_marriage_birth(marriage_date, birth_date, indi_id)
+                checked_results[indi_id] = result
+        return checked_results
 
+    @staticmethod
+    def __compare_marriage_birth(marriage_date, birth_date, indi_id):
+        if marriage_date:
+            if marriage_date < birth_date:
+                print("Error: Individual {i_id} has a marriage date {div_d} before the individual is born.".format(
+                    i_id=indi_id,
+                    div_d=marriage_date.strftime("%Y-%m-%d")))
+                return "No"
+            else: 
+                return "Yes"
+        else:
+            return "N/A"
+        
+    #US 07 Less than 150 years old 
+    def check_age_lessthan_150(self): 
+        individuals = self.get_individuals()
+        check_results = {}
+        for indi_key in individuals:
+            individual = individuals[indi_key]
+            birth_date = individual.get_birth()
+            #birth_date = datetime.datetime.strptime(birth, '%d %b %Y')
+            death_date = individual.get_death()
+            #death_date = datetime.datetime.strptime(death, '%d %b %Y')
+            indi_id = individual.get_id()
+            present_date = datetime.datetime.today().strftime('%d %b %Y')
+            if death_date: 
+                if death_date.year - birth_date.year >= 150:
+                    check_results[indi_id] = "Error"
+                    print("ERROR: Individual {i_id} age is more than 150 which is not possible".format(i_id=indi_id))
+                else: 
+                    check_results[indi_id] = "YES"
+            else: 
+                if present_date.year - birth_date.year >= 150:
+                    check_results[indi_id] = "Error"
+                    print("ERROR: Individual {i_id} age is more than 150 which is not possible".format(i_id=indi_id))
+                else: 
+                    check_results[indi_id] = "YES"
+        print("Resuls", check_results)
+        return check_results
+    
 # Families
 class Family:
     def __init__(self):
