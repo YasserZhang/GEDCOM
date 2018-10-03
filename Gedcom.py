@@ -1,7 +1,7 @@
 # design classes
 # global names
 from datetime import date
-import datetime
+from datetime import datetime, timedelta, date
 import prettytable
 INFO_TAGS = {'NAME': 'Name', 'SEX': 'Gender'}
 FAM_TAGS = {'FAMC': 'Child', 'FAMS': 'Spouse'}
@@ -414,26 +414,30 @@ class Gedcom:
         for indi_key in individuals:
             individual = individuals[indi_key]
             birth_date = individual.get_birth()
-            #birth_date = datetime.datetime.strptime(birth, '%d %b %Y')
             death_date = individual.get_death()
-            #death_date = datetime.datetime.strptime(death, '%d %b %Y')
             indi_id = individual.get_id()
-            present_date = datetime.datetime.today().strftime('%d %b %Y')
+            present_date = date.today()
+            limit = timedelta(days=150*365)
             if death_date: 
-                if death_date.year - birth_date.year >= 150:
+                if death_date - birth_date >= limit:
                     check_results[indi_id] = "Error"
                     print("ERROR: Individual {i_id} age is more than 150 which is not possible".format(i_id=indi_id))
                 else: 
-                    check_results[indi_id] = "YES"
+                    check_results[indi_id] = "Yes"
             else: 
-                if present_date.year - birth_date.year >= 150:
+                if present_date - birth_date >= limit:
                     check_results[indi_id] = "Error"
                     print("ERROR: Individual {i_id} age is more than 150 which is not possible".format(i_id=indi_id))
                 else: 
-                    check_results[indi_id] = "YES"
+                    check_results[indi_id] = "Yes"
         print("Resuls", check_results)
         return check_results
-    
+        
+    #US 13 Siblings spacing
+    #def check_siblings_spacing(self):
+     #   individuals = self.get_individuals()
+        
+
 # Families
 class Family:
     def __init__(self):
