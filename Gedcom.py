@@ -274,7 +274,7 @@ class Gedcom:
         else:
             return "Yes"
 
-	# US05 Marriage before Death
+    # US05 Marriage before Death
     def check_marriage_before_death(self):
         individuals = self.get_individuals()
         checked_results = {}
@@ -337,7 +337,6 @@ class Gedcom:
         else:
             return "Yes"
 
-
     # US 03 Individual birth after death
     def check_birth_before_death(self):
         individuals = self.get_individuals()
@@ -356,7 +355,6 @@ class Gedcom:
             else:
                 check_results[indi_id] = "N/A"
         return check_results
-
 
     # US 08 Child birth before Parents Marriage
     def check_childbirth_before_parents_marriage(self):
@@ -464,7 +462,34 @@ class Gedcom:
 
     #US 13 Siblings spacing
     #def check_siblings_spacing(self):
-     #   individuals = self.get_individuals()
+    #   individuals = self.get_individuals()
+
+    # US 09 Check for old parents
+    def check_old_parents(self):
+        families = self.get_families()
+        check_results = {}
+        for key in families:
+            family = families[key]
+            fam_id = family.get_id()
+            husband_id = family.get_husband_id()
+            wife_id = family.get_wife_id()
+
+            husb = self.get_individual_by_id(husband_id)
+            wife = self.get_individual_by_id(wife_id)
+
+            husb_birth = husb.get_birth()
+            wife_birth = wife.get_birth()
+
+            if(husb_birth and wife_birth):
+                if(date.today().year - husb_birth.year > 100 or date.today().year - wife_birth.year > 100):
+                    check_results[fam_id] = "yes"
+                    print("ERROR: The husband or the wife or both in family {f} are too old".format(f=fam_id))
+                else:
+                    check_results[fam_id] = "no"
+            else:
+                check_results[fam_id] = "no"
+                print("The birth date of husband or wife is missing!")
+        return check_results
 
 # Families
 class Family:
