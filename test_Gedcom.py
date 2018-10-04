@@ -6,16 +6,21 @@ import json
 
 class TestGedcomParser(unittest.TestCase):
 
+    def _check_ground_truth(self, checked_results, ground_truth_file_path):
+        with open(ground_truth_file_path, 'r') as f:
+            ground_truths = json.load(f)
+        for key in ground_truths:
+            self.assertTrue(key in checked_results)
+            self.assertEqual(ground_truths[key], checked_results[key])
+
     def test_marriage_before_divorce(self,
                                      file_path='test_files/Family.ged',
                                      ground_truth_file_path='test_files/gf.json'):
         ged = Gedcom()
         ged.parse(file_path)
         checked_results = ged.check_marriage_before_divorce()
-        print(checked_results)
         with open(ground_truth_file_path, 'r') as f:
             ground_truths = json.load(f)
-        print(checked_results)
         for key in ground_truths:
             self.assertTrue(key in checked_results)
             self.assertEqual(ground_truths[key], str(checked_results[key]))
@@ -90,6 +95,41 @@ class TestGedcomParser(unittest.TestCase):
             self.assertEqual(ground_truths[key], checked_results[key])
         print("check_marriage_after_fourteen test on {f} passed.".format(f=file_path))
 
+    # test US16
+    def test_male_last_names(self, file_path='test_files/Family.ged', ground_truth_file_path='test_files/male_last_names.json'):
+        ged = Gedcom()
+        ged.parse(file_path)
+        checked_results = ged.check_male_last_names()
+        self._check_ground_truth(checked_results, ground_truth_file_path)
+
+    # testcase for user story 02:
+    def test_birth_before_marriage(self,
+                                file_path='test_files/Family.ged',
+                                ground_truth_file_path='test_files/testcase_02.json'):
+        ged = Gedcom()
+        ged.parse(file_path)
+        check_results = ged.check_birth_before_marriage()
+        with open(ground_truth_file_path, 'r') as f:
+            ground_truths = json.load(f)
+        for key in ground_truths:
+            self.assertTrue(key in check_results)
+            self.assertEqual(ground_truths[key], check_results[key])
+        print("Check_Birth_Before_Marriage test passed on {f}".format(f=file_path))
+
+    # testcase for user story 07:
+    def test_age_lessthan_150(self,
+                                file_path='test_files/Family.ged',
+                                ground_truth_file_path='test_files/testcase_07.json'):
+        ged = Gedcom()
+        ged.parse(file_path)
+        check_results = ged.check_age_lessthan_150()
+        with open(ground_truth_file_path, 'r') as f:
+            ground_truths = json.load(f)
+        for key in ground_truths:
+            self.assertTrue(key in check_results)
+            self.assertEqual(ground_truths[key], check_results[key])
+        print("Check_Age_LessThan_150 test passed on {f}".format(f=file_path))
+
 
 if __name__ == "__main__":
-    unittest.main()
+    unittest.main() 
