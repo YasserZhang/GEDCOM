@@ -488,8 +488,37 @@ class Gedcom:
                     check_results[fam_id] = "no"
             else:
                 check_results[fam_id] = "no"
-                print("The birth date of husband or wife is missing!")
+                print("ERROR: The birth date of husband or wife is missing!")
         return check_results
+
+    # US 12
+    def check_birth_before_death_of_parents(self):
+        families = self.get_families()
+        check_results = {}
+        for key in families:
+            family = families[key]
+            fam_id = family.get_id()
+            husband_id = family.get_husband_id()
+            wife_id = family.get_wife_id()
+
+            husb = self.get_individual_by_id(husband_id)
+            wife = self.get_individual_by_id(wife_id)
+
+            husb_birth = husb.get_birth()
+            husb_death = husb.get_death()
+            wife_birth = wife.get_birth()
+            wife_death = wife.get_death()
+
+            if(husb_birth and husb_death and wife_birth and wife_death):
+                if(husb_birth < husb_death or wife_birth < wife_death):
+                    check_results[fam_id] = "yes"
+                else:
+                    check_results[fam_id] = "no"
+                    print("ERROR: In family {f_id}, either the Father or the Mother has a death date before birth".format(f_id=fam_id))
+            else:
+                check_results[fam_id] = "yes"
+        return check_results
+
 
 # Families
 class Family:
