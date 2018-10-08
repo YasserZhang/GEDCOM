@@ -431,12 +431,8 @@ class Gedcom:
                 else: 
                     check_results[indi_id] = "Yes"
         return check_results
-        
-    #US 13 Siblings spacing
-    #def check_siblings_spacing(self):
-     #   individuals = self.get_individuals()
-        
 
+        
 # Families
 class Family:
     def __init__(self):
