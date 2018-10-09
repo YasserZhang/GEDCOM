@@ -228,16 +228,16 @@ class Gedcom:
     def __compare_marriage_divorce(marriage_date, divorce_date, fam_id):
         if marriage_date and divorce_date:
             if marriage_date > divorce_date:
-                print("Error: Family {id_}'s marriage Date({m_t}) is later than the divorce date ({d_t}).".format(
+                print("ERROR in US04: Family {id_}'s marriage Date({m_t}) is later than the divorce date ({d_t}).".format(
                     id_=fam_id, m_t=marriage_date, d_t=divorce_date))
                 return False
         elif marriage_date is None:
             if divorce_date:
-                print("Error: Family {id_} has divorce date ({d_t}) but no marriage date.".format(
+                print("ERROR in US04: Family {id_} has divorce date ({d_t}) but no marriage date.".format(
                     id_=fam_id, d_t=divorce_date))
                 return False
             else:
-                print("Family {id_} does not have marriage date".format(id_=fam_id))
+                print("ERROR in US04: Family {id_} does not have marriage date".format(id_=fam_id))
                 return False
         return True
 
@@ -255,17 +255,19 @@ class Gedcom:
                 continue
             for fam_key in own_families:
                 own_family = own_families[fam_key]
+                fam_id = own_family.get_id()
                 divorce_date = own_family.get_divorce_date()
-                result = self.__compare_divorce_death(divorce_date, death_date, indi_id)
+                result = self.__compare_divorce_death(divorce_date, death_date, indi_id, fam_id)
                 checked_results[indi_id] = result
         return checked_results
 
     @staticmethod
-    def __compare_divorce_death(divorce_date, death_date, indi_id):
+    def __compare_divorce_death(divorce_date, death_date, indi_id, fam_id):
         if divorce_date:
             if divorce_date > death_date:
-                print("Error: Individual {i_id} has a divorce date {div_d} after the date of death {d_d}.".format(
+                print("ERROR US06: Individual {i_id} of Family {f_id} has a divorce date {div_d} after the date of death {d_d}.".format(
                     i_id=indi_id,
+                    f_id = fam_id,
                     div_d=divorce_date.strftime("%Y-%m-%d"),
                     d_d=death_date.strftime("%Y-%m-%d")))
                 return "No"
@@ -297,7 +299,7 @@ class Gedcom:
     def __compare_marriage_death(marriage_date, death_date, indi_id):
         if marriage_date:
             if marriage_date > death_date:
-                print("Error: Individual {i_id} has a marriage date {div_d} after the date of death {d_d}.".format(
+                print("ERROR US05: Individual {i_id} has a marriage date {div_d} after the date of death {d_d}.".format(
                     i_id=indi_id,
                     div_d=marriage_date.strftime("%Y-%m-%d"),
                     d_d=death_date.strftime("%Y-%m-%d")))
@@ -328,7 +330,7 @@ class Gedcom:
         if marriage_date:
             diff = abs(marriage_date.year - birth_date.year)
             if diff < 14:
-                print("Error: Individual {i_id} has a marriage date {div_d} before the age of fourteen.".format(
+                print("ERROR US10: Individual {i_id} has a marriage date {div_d} before the age of fourteen.".format(
                     i_id=indi_id,
                     div_d=marriage_date.strftime("%Y-%m-%d")))
                 return "No"
@@ -349,7 +351,7 @@ class Gedcom:
             if death_date is not None and birth_date is not None:
                 if birth_date > death_date:
                     check_results[indi_id] = "error"
-                    print("ERROR in userstory 03: Individual {i_id} has birth date after death date".format(i_id=indi_id))
+                    print("ERROR in US03: Individual {i_id} has birth date after death date".format(i_id=indi_id))
                 else:
                     check_results[indi_id] = "N/A"
             else:
@@ -373,7 +375,7 @@ class Gedcom:
                         check_results[fam_id + "-" + child.get_id()] = "no"
                     else:
                         check_results[fam_id + "-" + child.get_id()] = "yes"
-                        print("ERROR in userstory 08: Found a child birth {c_birth} before their parents marriage date".format(c_birth=child_birthday))
+                        print("ERROR in US08: Found a child birth {c_birth} before their parents marriage date".format(c_birth=child_birthday))
         return check_results
 
     #US 02 Birth before Marriage
@@ -396,7 +398,7 @@ class Gedcom:
     def __compare_marriage_birth(marriage_date, birth_date, indi_id):
         if marriage_date:
             if marriage_date < birth_date:
-                print("Error: Individual {i_id} has a marriage date {div_d} before the individual is born.".format(
+                print("ERROR in US02: Individual {i_id} has a marriage date {div_d} before the individual is born.".format(
                     i_id=indi_id,
                     div_d=marriage_date.strftime("%Y-%m-%d")))
                 return "No"
@@ -419,13 +421,13 @@ class Gedcom:
             if death_date:
                 if death_date - birth_date >= limit:
                     check_results[indi_id] = "Error"
-                    print("ERROR: Individual {i_id} age is more than 150 which is not possible".format(i_id=indi_id))
+                    print("ERROR in US07: Individual {i_id} age is more than 150 which is not possible".format(i_id=indi_id))
                 else:
                     check_results[indi_id] = "Yes"
             else:
                 if present_date - birth_date >= limit:
                     check_results[indi_id] = "Error"
-                    print("ERROR: Individual {i_id} age is more than 150 which is not possible".format(i_id=indi_id))
+                    print("ERROR in US07: Individual {i_id} age is more than 150 which is not possible".format(i_id=indi_id))
                 else:
                     check_results[indi_id] = "Yes"
         return check_results
@@ -443,14 +445,14 @@ class Gedcom:
             wife = self.__individual_dict[family.get_wife_id()]
             wife_last_name = wife.get_name().split(" ")[1].strip()
             if wife_last_name != last_name:
-                print("ERROR: Individual {i_id}'s last name {i_ln} does not match family {f_id}'s name {f_n}.".format(
+                print("ERROR in US16: Individual {i_id}'s last name {i_ln} does not match family {f_id}'s name {f_n}.".format(
                     i_id=wife.get_id(),i_ln=wife_last_name,f_id=fam_id,f_n=last_name))
                 checked_results[fam_id] = "No"
             children = family.get_children()
             for _, child in children.items():
                 child_last_name = child.get_name().split(" ")[1].strip()
                 if child_last_name != last_name:
-                    print("ERROR: Individual {i_id}'s last name {i_ln} does not match family {f_id}'s name {f_n}.".format(
+                    print("ERROR in US16: Individual {i_id}'s last name {i_ln} does not match family {f_id}'s name {f_n}.".format(
                                     i_id=child.get_id(),
                                     i_ln=child_last_name,
                                     f_id=fam_id,
@@ -483,12 +485,12 @@ class Gedcom:
             if(husb_birth and wife_birth):
                 if(date.today().year - husb_birth.year > 100 or date.today().year - wife_birth.year > 100):
                     check_results[fam_id] = "yes"
-                    print("ERROR in userstory 09: The husband or the wife or both in family {f} are too old".format(f=fam_id))
+                    print("ERROR in US09: The husband or the wife or both in family {f} are too old".format(f=fam_id))
                 else:
                     check_results[fam_id] = "no"
             else:
                 check_results[fam_id] = "no"
-                print("ERROR in userstory 09: The birth date of husband or wife is missing!")
+                print("ERROR in US09: The birth date of husband or wife is missing!")
         return check_results
 
     # US 12
@@ -516,7 +518,7 @@ class Gedcom:
                 else:
                     #print("2. ",husb_birth,"\t\t",husb_death)
                     check_results[fam_id] = "no"
-                    print("ERROR in userstory 12: In family {f_id}, the Father with {h_id} has a death date before birth".format(f_id=fam_id,h_id=husband_id))
+                    print("ERROR in US12: In family {f_id}, the Father with {h_id} has a death date before birth".format(f_id=fam_id,h_id=husband_id))
             elif(wife_death is not None):
                 if(wife_birth.year < wife_death.year):
                     #print("1. ",husb_birth,"\t\t",husb_death)
@@ -524,7 +526,7 @@ class Gedcom:
                 else:
                     #print("2. ",husb_birth,"\t\t",husb_death)
                     check_results[fam_id] = "no"
-                    print("ERROR in userstory 12: In family {f_id}, the Mother with {w_id} has a death date before birth".format(f_id=fam_id,w_id=wife_id))
+                    print("ERROR in US12: In family {f_id}, the Mother with {w_id} has a death date before birth".format(f_id=fam_id,w_id=wife_id))
             else:
                 #print("3. ",husb_birth,"\t\t",husb_death)
                 check_results[fam_id] = "yes"
