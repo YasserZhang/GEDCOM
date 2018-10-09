@@ -13,6 +13,7 @@ class TestGedcomParser(unittest.TestCase):
             self.assertTrue(key in checked_results)
             self.assertEqual(ground_truths[key], checked_results[key])
 
+    # US04 marriage before divorce
     def test_marriage_before_divorce(self,
                                      file_path='test_files/Family.ged',
                                      ground_truth_file_path='test_files/gf.json'):
@@ -24,8 +25,9 @@ class TestGedcomParser(unittest.TestCase):
         for key in ground_truths:
             self.assertTrue(key in checked_results)
             self.assertEqual(ground_truths[key], str(checked_results[key]))
-        print("check_marriage_before_divorce test on {f} passed.".format(f=file_path))
+        #print("check_marriage_before_divorce test on {f} passed.".format(f=file_path))
 
+    # US06 divorce before death
     def test_divorce_before_death(self, 
                     file_path='test_files/Family.ged', 
                     ground_truth_file_path='test_files/divorce_before_death.json'):
@@ -39,7 +41,7 @@ class TestGedcomParser(unittest.TestCase):
         for key in ground_truths:
             self.assertTrue(key in checked_results)
             self.assertEqual(ground_truths[key], checked_results[key])
-        print("check_divorce_before_death test on {f} passed.".format(f=file_path))
+        #print("check_divorce_before_death test on {f} passed.".format(f=file_path))
 
     # testcase for user story 03:
     def test_birth_before_death(self,
@@ -54,7 +56,7 @@ class TestGedcomParser(unittest.TestCase):
             self.assertTrue(key in check_results)
             #print(ground_truths[key])
             self.assertEqual(ground_truths[key], check_results[key])
-        print("Check_Birth_Before_Death test passed on {f}".format(f=file_path))
+        #print("Check_Birth_Before_Death test passed on {f}".format(f=file_path))
 
     # testcase for user story 08:
     def test_childbirth_before_parentsMarriage(self,
@@ -68,8 +70,9 @@ class TestGedcomParser(unittest.TestCase):
         for key in ground_truths:
             self.assertTrue(key in check_results)
             self.assertEqual(ground_truths[key], check_results[key])
-        print("Check_ChildBirth_Before_ParentsMariage test passed on {f}".format(f=file_path))
+        #print("Check_ChildBirth_Before_ParentsMariage test passed on {f}".format(f=file_path))
 
+    # US05 marriage before death
     def test_marriage_before_death(self,
                     file_path='test_files/Family.ged',
                     ground_truth_file_path='test_files/marriage_before_death.json'):
@@ -82,8 +85,9 @@ class TestGedcomParser(unittest.TestCase):
         for key in ground_truths:
             self.assertTrue(key in checked_results)
             self.assertEqual(ground_truths[key], checked_results[key])
-        print("check_marriage_before_death test on {f} passed.".format(f=file_path))
+        #print("check_marriage_before_death test on {f} passed.".format(f=file_path))
 
+    # US10 marriage after 14
     def test_marriage_after_fourteen(self, file_path='test_files/Family.ged', ground_truth_file_path='test_files/marriage_before_fourteen.json'):
         ged = Gedcom()
         ged.parse(file_path)
@@ -94,7 +98,7 @@ class TestGedcomParser(unittest.TestCase):
         for key in ground_truths:
             self.assertTrue(key in checked_results)
             self.assertEqual(ground_truths[key], checked_results[key])
-        print("check_marriage_after_fourteen test on {f} passed.".format(f=file_path))
+        #print("check_marriage_after_fourteen test on {f} passed.".format(f=file_path))
 
     # testcase for user story 02:
     def test_birth_before_marriage(self,
@@ -108,7 +112,7 @@ class TestGedcomParser(unittest.TestCase):
         for key in ground_truths:
             self.assertTrue(key in check_results)
             self.assertEqual(ground_truths[key], check_results[key])
-        print("Check_Birth_Before_Marriage test passed on {f}".format(f=file_path))
+        #print("Check_Birth_Before_Marriage test passed on {f}".format(f=file_path))
 
     # testcase for user story 07:
     def test_age_lessthan_150(self,
@@ -122,7 +126,7 @@ class TestGedcomParser(unittest.TestCase):
         for key in ground_truths:
             self.assertTrue(key in check_results)
             self.assertEqual(ground_truths[key], check_results[key])
-        print("Check_Age_LessThan_150 test passed on {f}".format(f=file_path))
+        #print("Check_Age_LessThan_150 test passed on {f}".format(f=file_path))
 
     # Sprint 2
     # test US16
@@ -144,7 +148,7 @@ class TestGedcomParser(unittest.TestCase):
         for key in ground_truths:
             self.assertTrue(key in check_results)
             self.assertEqual(ground_truths[key], check_results[key])
-        print("Check_old_parents test passed on {f}.".format(f=file_path))
+        #print("Check_old_parents test passed on {f}.".format(f=file_path))
 
     # testcase US 12
     def test_birth_before_death_of_parents(self,
@@ -159,7 +163,7 @@ class TestGedcomParser(unittest.TestCase):
             #print(ground_truths[key])
             self.assertTrue(key in check_results)
             self.assertEqual(ground_truths[key], check_results[key])
-    	print("Check_birth_before_death_of_parents test passed on {f}".format(f=file_path))
+    	#print("Check_birth_before_death_of_parents test passed on {f}".format(f=file_path))
 
 
 if __name__ == "__main__":
