@@ -52,6 +52,7 @@ class TestGedcomParser(unittest.TestCase):
             ground_truths = json.load(f)
         for key in ground_truths:
             self.assertTrue(key in check_results)
+            #print(ground_truths[key])
             self.assertEqual(ground_truths[key], check_results[key])
         print("Check_Birth_Before_Death test passed on {f}".format(f=file_path))
 
@@ -153,10 +154,11 @@ class TestGedcomParser(unittest.TestCase):
     	ged.parse(file_path)
     	check_results = ged.check_birth_before_death_of_parents()
     	with open(ground_truth_file_path, 'r') as f:
-                ground_truths = json.load(f)
+            ground_truths = json.load(f)
     	for key in ground_truths:
-    		self.assertTrue(key in check_results)
-    		self.assertEqual(ground_truths[key], check_results[key])
+            #print(ground_truths[key])
+            self.assertTrue(key in check_results)
+            self.assertEqual(ground_truths[key], check_results[key])
     	print("Check_birth_before_death_of_parents test passed on {f}".format(f=file_path))
 
 
