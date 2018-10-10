@@ -33,8 +33,6 @@ class TestGedcomParser(unittest.TestCase):
                     ground_truth_file_path='test_files/divorce_before_death.json'):
         ged = Gedcom()
         ged.parse(file_path)
-        ged.print_individuals()
-        ged.print_families()
         checked_results = ged.check_divorce_before_death()
         with open(ground_truth_file_path, 'r') as f:
             ground_truths = json.load(f)
@@ -49,6 +47,8 @@ class TestGedcomParser(unittest.TestCase):
                                 ground_truth_file_path='test_files/testcase_03.json'):
         ged = Gedcom()
         ged.parse(file_path)
+        ged.print_individuals()
+        ged.print_families()
         check_results = ged.check_birth_before_death()
         with open(ground_truth_file_path, 'r') as f:
             ground_truths = json.load(f)
