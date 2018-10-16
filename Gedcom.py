@@ -26,6 +26,28 @@ INDIVIDUAL = 'INDI'
 FAMILY = 'FAM'
 ZERO_LEVEL_TRIVIAL_LINE_SEGMENTS_LENGTH = 2
 
+# supporting functions
+def families(gedcom):
+    return list(gedcom.get_families().values())
+
+def individuals(gedcom):
+    return list(gedcom.get_individuals().values())
+
+def divorce_date(family):
+    return family.get_divorce_date()
+
+def marriage_date(family):
+    return family.get_marriage_date()
+
+def id_(Instance):
+    # this instance can either be family or individual
+    return Instance.get_id()
+
+def wife(family):
+    return family.get_wife_id()
+
+def husband(family):
+    return family.get_husband_id()
 
 # Gedcom is a tree including families and individuals
 class Gedcom:
@@ -213,31 +235,26 @@ class Gedcom:
 
     # US04 Marriage before Divorce
     def check_marriage_before_divorce(self):
-        families = self.get_families()
         results = {}
-        for key in families:
-            family = families[key]
-            fam_id = family.get_id()
-            marriage_date = family.get_marriage_date()
-            divorce_date = family.get_divorce_date()
-            result = self.__compare_marriage_divorce(marriage_date, divorce_date, fam_id)
-            results[fam_id] = result
+        for family in families(self):
+            result = self.__compare_marriage_divorce(family)
+            results[id_(family)] = result
         return results
 
     @staticmethod
-    def __compare_marriage_divorce(marriage_date, divorce_date, fam_id):
-        if marriage_date and divorce_date:
-            if marriage_date > divorce_date:
+    def __compare_marriage_divorce(family):
+        if marriage_date(family) and divorce_date(family):
+            if marriage_date(family) > divorce_date(family):
                 print("ERROR in US04: Family {id_}'s marriage Date({m_t}) is later than the divorce date ({d_t}).".format(
-                    id_=fam_id, m_t=marriage_date, d_t=divorce_date))
+                    id_=family.get_id(), m_t=marriage_date(family), d_t=divorce_date(family)))
                 return False
-        elif marriage_date is None:
-            if divorce_date:
+        elif marriage_date(family) is None:
+            if divorce_date(family):
                 print("ERROR in US04: Family {id_} has divorce date ({d_t}) but no marriage date.".format(
-                    id_=fam_id, d_t=divorce_date))
+                    id_=id_(family), d_t=divorce_date(family)))
                 return False
             else:
-                print("ERROR in US04: Family {id_} does not have marriage date".format(id_=fam_id))
+                print("ERROR in US04: Family {id_} does not have marriage date".format(id_=id_(family)))
                 return False
         return True
 
@@ -257,12 +274,12 @@ class Gedcom:
                 own_family = own_families[fam_key]
                 fam_id = own_family.get_id()
                 divorce_date = own_family.get_divorce_date()
-                result = self.__compare_divorce_death(divorce_date, death_date, indi_id, fam_id)
+                result = self.__compare_divorce_death(divorce_date, death_date, indi_id, fam_id, checked_results)
                 checked_results[indi_id] = result
         return checked_results
 
     @staticmethod
-    def __compare_divorce_death(divorce_date, death_date, indi_id, fam_id):
+    def __compare_divorce_death(divorce_date, death_date, indi_id, fam_id, checked_results):
         if divorce_date:
             if divorce_date > death_date:
                 print("ERROR US06: Individual {i_id} of Family {f_id} has a divorce date {div_d} after the date of death {d_d}.".format(
@@ -274,6 +291,8 @@ class Gedcom:
             else:
                 return "Yes"
         else:
+            if indi_id in checked_results:
+                return checked_results[indi_id]
             return "Yes"
 
     # US05 Marriage before Death
@@ -462,6 +481,23 @@ class Gedcom:
                 checked_results[fam_id] = "Yes"
         return checked_results
 
+    # US17 No marriages to descendants
+    def check_marry_descendants(self):
+        results = {}
+        for individual in individuals(self):
+            # get all descendants ids
+            children_ids = set(individual.find_all_descendants())
+            spouse_ids = individual.find_spouse_ids()
+            spouse_is_a_descendant = False
+            for spouse_id in spouse_ids:
+                if spouse_id in children_ids:
+                    print("ERROR in US17: Individual {i_id} married descendant {s_id}.".format(i_id=id_(individual), s_id=spouse_id))
+                    results[id_(individual)] = "Error"
+                    spouse_is_a_descendant = True
+            if not spouse_is_a_descendant:
+                results[id_(individual)] = "Correct"
+        return results
+
     #US 13 Siblings spacing
     #def check_siblings_spacing(self):
     #   individuals = self.get_individuals()
@@ -636,8 +672,9 @@ class Individual:
         # list all information of the indi
         return [self.__id, self.__name, self.__gender,
                 self.__birth, self.__age, self.__alive, self.__death,
-                set([key for key in self.__parents_families]),
-                set([key for key in self.__own_families])]
+                set([key for key in self.__own_families]),
+                set([key for key in self.__parents_families])
+                ]
 
     def get_name(self):
         return self.__name
@@ -677,3 +714,26 @@ class Individual:
 
     def set_own_family_by_id(self, fam_id, fam):
         self.__own_families[fam_id] = fam
+
+    def find_all_descendants(self):
+        results = []
+        #dfs to fetch all descendant ids
+        def helper(individual, results):
+            if len(list(individual.get_own_families().values())) == 0:
+                return
+            for family in list(individual.get_own_families().values()):
+                children = family.get_children()
+                results += list(children.keys())
+                for child in list(children.values()):
+                    helper(child, results)
+        
+        helper(self, results)
+        return results
+
+    def find_spouse_ids(self):
+        own_families = list(self.get_own_families().values())
+        if self.get_gender() == "M":
+            results = [fam.get_wife_id() for fam in own_families]
+        else:
+            results = [fam.get_husband_id() for fam in own_families]
+        return results
