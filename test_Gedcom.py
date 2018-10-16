@@ -3,7 +3,6 @@ import unittest
 from Gedcom import Gedcom
 import json
 
-
 class TestGedcomParser(unittest.TestCase):
 
     def _check_ground_truth(self, checked_results, ground_truth_file_path):
@@ -92,7 +91,6 @@ class TestGedcomParser(unittest.TestCase):
         ged = Gedcom()
         ged.parse(file_path)
         checked_results = ged.check_marriage_after_fourteen()
-        # print(checked_results)
         with open(ground_truth_file_path, 'r') as f:
             ground_truths = json.load(f)
         for key in ground_truths:
@@ -165,6 +163,12 @@ class TestGedcomParser(unittest.TestCase):
             self.assertEqual(ground_truths[key], check_results[key])
     	#print("Check_birth_before_death_of_parents test passed on {f}".format(f=file_path))
 
+    # testcase US 17
+    def test_marry_descendants(self,file_path='test_files/Family.ged'):
+        ged = Gedcom()
+        ged.parse(file_path)
+        check_results=ged.check_marry_descendants()
+        return check_results
 
 if __name__ == "__main__":
     unittest.main() 
