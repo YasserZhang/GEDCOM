@@ -1,8 +1,9 @@
 # design classes
 # global names
-from datetime import date
-from datetime import datetime, timedelta, date
+from datetime import timedelta, date
+
 import prettytable
+
 INFO_TAGS = {'NAME': 'Name', 'SEX': 'Gender'}
 FAM_TAGS = {'FAMC': 'Child', 'FAMS': 'Spouse'}
 DATE_TAGS = {'BIRT': 'Birthday', 'DEAT': 'Death'}
@@ -568,6 +569,51 @@ class Gedcom:
                 check_results[fam_id] = "yes"
         return check_results
 
+    # US 14: Multiple births <= 5
+    def check_multiple_births(self):
+        families = self.get_families()
+        check_results = {}
+        flag = 0
+        for key in families:
+            family = families[key]
+            fam_id = family.get_id()
+            fam_children = family.list_children_ids()
+
+            for ids, key in zip(range(len(fam_children)-1), fam_children):
+                if len(fam_children) > 1:
+                    fam_list = list(fam_children)
+                    if self.get_individual_by_id(fam_list[ids]).get_birth() == \
+                            self.get_individual_by_id(fam_list[ids+1]).get_birth():
+                        flag += 1
+                    else:
+                        flag = 0
+                else:
+                    check_results[fam_id] = 'Yes'
+
+            if flag >= 5:
+                check_results[fam_id] = "No"
+                print("ERROR in US14: Found multiple births at the same time greater than five in family {f}".format(f=fam_id))
+            else:
+                check_results[fam_id] = "Yes"
+        return check_results
+
+        # US 15: Fewer than 15 siblings
+
+    def check_siblings_count(self):
+        families = self.get_families()
+        check_results = {}
+        for key in families:
+            family = families[key]
+            fam_id = family.get_id()
+            fam_children = family.list_children_ids()
+
+            if len(fam_children) >= 15:
+                check_results[fam_id] = "No"
+                print("ERROR in US15: More than 15 siblings in in family {f}".format(f=fam_id))
+            else:
+                check_results[fam_id] = "Yes"
+
+        return check_results
 
 # Families
 class Family:

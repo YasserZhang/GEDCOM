@@ -170,5 +170,21 @@ class TestGedcomParser(unittest.TestCase):
         check_results=ged.check_marry_descendants()
         return check_results
 
+    # Testcase US 14
+    def test_check_multiple_births(self, file_path='test_files/Family.ged',
+                                    ground_truth_file_path='test_files/testcase_14.json'):
+        ged = Gedcom()
+        ged.parse(file_path)
+        checked_results = ged.check_multiple_births()
+        self._check_ground_truth(checked_results, ground_truth_file_path)
+
+    # Testcase US 15
+    def test_check_siblings_count(self, file_path='test_files/Family.ged',
+                                  ground_truth_file_path='test_files/testcase_15.json'):
+        ged = Gedcom()
+        ged.parse(file_path)
+        checked_results = ged.check_siblings_count()
+        self._check_ground_truth(checked_results, ground_truth_file_path)
+
 if __name__ == "__main__":
     unittest.main() 
