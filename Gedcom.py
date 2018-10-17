@@ -615,7 +615,36 @@ class Gedcom:
                 check_results[fam_id] = "Yes"
 
         return check_results
+    
+    def check_Correct_gender(self): 
+        families = self.get_families()
+        check_results = {}
+        for key in families:
+            family = families[key]
+            fam_id = family.get_id()
+            husband_id = family.get_husband_id()
+            wife_id = family.get_wife_id()
 
+            husb = self.get_individual_by_id(husband_id)
+            wife = self.get_individual_by_id(wife_id)
+
+            husb_gender = husb.get_gender()
+            wife_gender = wife.get_gender()
+            
+            if(husb_gender != 'M'):
+                check_results[husband_id] = "Error"
+                print("ERROR in US21: The husband {h} in the family {f} violates correct gender".format(h=husband_id, f=fam_id))
+            else:
+                check_results[husband_id] = "Yes"
+                
+            
+            if(wife_gender != 'F'):
+                check_results[wife_id] = "Error"
+                print("ERROR in US21: The Wife {w} in the family {f} violates correct gender".format(w=wife_id, f=fam_id))
+            else:
+                check_results[wife_id] = "Yes"
+        print (check_results)
+        return check_results
 # Families
 class Family:
     def __init__(self):
