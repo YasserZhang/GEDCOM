@@ -395,7 +395,8 @@ class Gedcom:
                         check_results[fam_id + "-" + child.get_id()] = "no"
                     else:
                         check_results[fam_id + "-" + child.get_id()] = "yes"
-                        print("ERROR in US08: Found a child birth {c_birth} before their parents marriage date".format(c_birth=child_birthday))
+                        print("ERROR in US08: Found a child {c_id}'s birthday {c_birth} before the marriage date {m_d} of {c_id}'s parent family {f_id}.".format(
+                            c_id=child.get_id(), m_d=fam_marriage_date, c_birth=child_birthday, f_id=fam_id))
         return check_results
 
     #US 02 Birth before Marriage
