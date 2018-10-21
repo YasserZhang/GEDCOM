@@ -504,7 +504,7 @@ class Gedcom:
     #def check_siblings_spacing(self):
     #   individuals = self.get_individuals()
 
-    # US 12 Check for old parents
+    # US 09 Check for old parents
     def check_old_parents(self):
         families = self.get_families()
         check_results = {}
@@ -531,7 +531,7 @@ class Gedcom:
                 print("ERROR in US12: The birth date of husband or wife is missing!")
         return check_results
 
-    # US 12
+    # US 12 Check birth before death of parents
     def check_birth_before_death_of_parents(self):
         families = self.get_families()
         check_results = {}
@@ -614,7 +614,7 @@ class Gedcom:
                 check_results[fam_id] = "Yes"
 
         return check_results
-    
+
     # US21 Correct gender for role
     def check_Correct_gender(self): 
         families = self.get_families()
@@ -630,20 +630,45 @@ class Gedcom:
 
             husb_gender = husb.get_gender()
             wife_gender = wife.get_gender()
-            
+
             if(husb_gender != 'M'):
                 check_results[husband_id] = "Error"
                 print("ERROR in US21: The husband {h} in the family {f} violates correct gender".format(h=husband_id, f=fam_id))
             else:
                 check_results[husband_id] = "Yes"
-                
-            
+
             if(wife_gender != 'F'):
                 check_results[wife_id] = "Error"
                 print("ERROR in US21: The Wife {w} in the family {f} violates correct gender".format(w=wife_id, f=fam_id))
             else:
                 check_results[wife_id] = "Yes"
         return check_results
+
+    # Sprint 3
+
+    # US 28 Order siblings by age
+    def order_siblings_by_age(self):
+        families = self.get_families()
+        check_results = {}
+        for key in families:
+            family = families[key]
+            fam_id = family.get_id()
+            fam_children = family.list_children_ids()
+            children_birth = []
+            if len(list(fam_children)) < 2:
+                print("ERROR in US 28: There are not enough children to sort in family {f}".format(f=fam_id))
+                check_results[fam_id] = "No" # indicates that there is only 1 child
+            else:
+                check_results[fam_id] = "Yes"
+                for key in fam_children:
+                    child = self.get_individual_by_id(key)
+                    children_birth.append(child.get_birth().year)
+                    children_birth = sorted(children_birth, reverse=True)
+        #print(children_birth)
+        return check_results
+
+
+
 # Families
 class Family:
     def __init__(self):
