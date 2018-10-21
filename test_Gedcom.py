@@ -185,13 +185,21 @@ class TestGedcomParser(unittest.TestCase):
         ged.parse(file_path)
         checked_results = ged.check_siblings_count()
         self._check_ground_truth(checked_results, ground_truth_file_path)
-        
+
     #Testcase US 21
     def test_check_Correct_gender(self, file_path='test_files/Family.ged',
                                     ground_truth_file_path='test_files/testcase_21.json'):
         ged = Gedcom()
         ged.parse(file_path)
         checked_results = ged.check_Correct_gender()
+        self._check_ground_truth(checked_results, ground_truth_file_path)
+
+    # Testcase US 28
+    def test_order_siblings(self, file_path='test_files/Family.ged',
+                                  ground_truth_file_path='test_files/testcase_28.json'):
+        ged = Gedcom()
+        ged.parse(file_path)
+        checked_results = ged.order_siblings_by_age()
         self._check_ground_truth(checked_results, ground_truth_file_path)
 
 if __name__ == "__main__":
