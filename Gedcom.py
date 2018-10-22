@@ -667,6 +667,40 @@ class Gedcom:
         #print(children_birth)
         return check_results
 
+    # US 34 large age difference between couple when married
+    def large_age_difference(self):
+        families = self.get_families()
+        check_results = {}
+        for key in families:
+            family = families[key]
+            fam_id = family.get_id()
+            fam_marriage_date = family.get_marriage_date()
+
+            if fam_marriage_date is not None:
+                fam_marriage_date = fam_marriage_date.year
+                subtract = date.today().year - fam_marriage_date # to find the #of years to be subtracted to get the age when married
+
+                husband_id = family.get_husband_id()
+                wife_id = family.get_wife_id()
+
+                husb = self.get_individual_by_id(husband_id)
+                wife = self.get_individual_by_id(wife_id)
+
+                husb_age = date.today().year - husb.get_birth().year
+                husb_age_when_married = husb_age - subtract
+
+                wife_age = date.today().year - wife.get_birth().year
+                wife_age_when_married = wife_age - subtract
+
+                if(husb_age_when_married >= wife_age_when_married*2 or wife_age_when_married >= husb_age_when_married*2):
+                    check_results[fam_id] = 'Yes'
+                    print("ERROR in US 34: Either the Husband or the wife in family {f} had an age twice or more than the other".format(f=fam_id))
+                else:
+                    check_results[fam_id] = 'No'
+            else:
+                check_results[fam_id] = 'No'
+        return check_results
+
 
 
 # Families
@@ -724,7 +758,7 @@ class Family:
 
     def get_child_by_id(self, id_):
         return self.__children[id_]
-    
+
     def get_children(self):
         return self.__children
 
@@ -826,7 +860,7 @@ class Individual:
                 results += list(children.keys())
                 for child in list(children.values()):
                     helper(child, results)
-        
+
         helper(self, results)
         return results
 
