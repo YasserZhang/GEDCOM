@@ -395,7 +395,8 @@ class Gedcom:
                         check_results[fam_id + "-" + child.get_id()] = "no"
                     else:
                         check_results[fam_id + "-" + child.get_id()] = "yes"
-                        print("ERROR in US08: Found a child birth {c_birth} before their parents marriage date".format(c_birth=child_birthday))
+                        print("ERROR in US08: Found a child {c_id}'s birthday {c_birth} before the marriage date {m_d} of {c_id}'s parent family {f_id}.".format(
+                            c_id=child.get_id(), m_d=fam_marriage_date, c_birth=child_birthday, f_id=fam_id))
         return check_results
 
     #US 02 Birth before Marriage
@@ -522,15 +523,15 @@ class Gedcom:
             if(husb_birth and wife_birth):
                 if(date.today().year - husb_birth.year > 100 or date.today().year - wife_birth.year > 100):
                     check_results[fam_id] = "yes"
-                    print("ERROR in US09: The husband or the wife or both in family {f} are too old".format(f=fam_id))
+                    print("ERROR in US12: The husband or the wife or both in family {f} are too old".format(f=fam_id))
                 else:
                     check_results[fam_id] = "no"
             else:
                 check_results[fam_id] = "no"
-                print("ERROR in US09: The birth date of husband or wife is missing!")
+                print("ERROR in US12: The birth date of husband or wife is missing!")
         return check_results
 
-    # US 12
+    # US 12 Check birth before death of parents
     def check_birth_before_death_of_parents(self):
         families = self.get_families()
         check_results = {}
@@ -555,7 +556,7 @@ class Gedcom:
                 else:
                     #print("2. ",husb_birth,"\t\t",husb_death)
                     check_results[fam_id] = "no"
-                    print("ERROR in US12: In family {f_id}, the Father with {h_id} has a death date before birth".format(f_id=fam_id,h_id=husband_id))
+                    print("ERROR in US09: In family {f_id}, the Father with {h_id} has a death date before birth".format(f_id=fam_id,h_id=husband_id))
             elif(wife_death is not None):
                 if(wife_birth.year < wife_death.year):
                     #print("1. ",husb_birth,"\t\t",husb_death)
@@ -563,7 +564,7 @@ class Gedcom:
                 else:
                     #print("2. ",husb_birth,"\t\t",husb_death)
                     check_results[fam_id] = "no"
-                    print("ERROR in US12: In family {f_id}, the Mother with {w_id} has a death date before birth".format(f_id=fam_id,w_id=wife_id))
+                    print("ERROR in US09: In family {f_id}, the Mother with {w_id} has a death date before birth".format(f_id=fam_id,w_id=wife_id))
             else:
                 #print("3. ",husb_birth,"\t\t",husb_death)
                 check_results[fam_id] = "yes"
@@ -597,8 +598,7 @@ class Gedcom:
                 check_results[fam_id] = "Yes"
         return check_results
 
-        # US 15: Fewer than 15 siblings
-
+    # US 15: Fewer than 15 siblings
     def check_siblings_count(self):
         families = self.get_families()
         check_results = {}
@@ -614,8 +614,8 @@ class Gedcom:
                 check_results[fam_id] = "Yes"
 
         return check_results
-    
-    #US 21 Correct gender for role
+
+    # US21 Correct gender for role
     def check_Correct_gender(self): 
         families = self.get_families()
         check_results = {}
@@ -630,20 +630,19 @@ class Gedcom:
 
             husb_gender = husb.get_gender()
             wife_gender = wife.get_gender()
-            
+
             if(husb_gender != 'M'):
                 check_results[husband_id] = "Error"
                 print("ERROR in US21: The husband {h} in the family {f} violates correct gender".format(h=husband_id, f=fam_id))
             else:
                 check_results[husband_id] = "Yes"
-                
-            
+
             if(wife_gender != 'F'):
                 check_results[wife_id] = "Error"
                 print("ERROR in US21: The Wife {w} in the family {f} violates correct gender".format(w=wife_id, f=fam_id))
             else:
                 check_results[wife_id] = "Yes"
-                
+        
         return check_results
     
     #Siblings Spacing US 13
@@ -675,8 +674,64 @@ class Gedcom:
                             check_results[fam_id] = "Yes"
         #print(check_results)
         return check_results
-    
-    
+
+    # Sprint 3
+
+    # US 28 Order siblings by age
+    def order_siblings_by_age(self):
+        families = self.get_families()
+        check_results = {}
+        for key in families:
+            family = families[key]
+            fam_id = family.get_id()
+            fam_children = family.list_children_ids()
+            children_birth = []
+            if len(list(fam_children)) < 2:
+                print("ERROR in US 28: There are not enough children to sort in family {f}".format(f=fam_id))
+                check_results[fam_id] = "No" # indicates that there is only 1 child
+            else:
+                check_results[fam_id] = "Yes"
+                for key in fam_children:
+                    child = self.get_individual_by_id(key)
+                    children_birth.append(child.get_birth().year)
+                    children_birth = sorted(children_birth, reverse=True)
+        #print(children_birth)
+        return check_results
+
+    # US 34 large age difference between couple when married
+    def large_age_difference(self):
+        families = self.get_families()
+        check_results = {}
+        for key in families:
+            family = families[key]
+            fam_id = family.get_id()
+            fam_marriage_date = family.get_marriage_date()
+
+            if fam_marriage_date is not None:
+                fam_marriage_date = fam_marriage_date.year
+                subtract = date.today().year - fam_marriage_date # to find the #of years to be subtracted to get the age when married
+
+                husband_id = family.get_husband_id()
+                wife_id = family.get_wife_id()
+
+                husb = self.get_individual_by_id(husband_id)
+                wife = self.get_individual_by_id(wife_id)
+
+                husb_age = date.today().year - husb.get_birth().year
+                husb_age_when_married = husb_age - subtract
+
+                wife_age = date.today().year - wife.get_birth().year
+                wife_age_when_married = wife_age - subtract
+
+                if(husb_age_when_married >= wife_age_when_married*2 or wife_age_when_married >= husb_age_when_married*2):
+                    check_results[fam_id] = 'Yes'
+                    print("ERROR in US 34: Either the Husband or the wife in family {f} had an age twice or more than the other".format(f=fam_id))
+                else:
+                    check_results[fam_id] = 'No'
+            else:
+                check_results[fam_id] = 'No'
+        return check_results
+
 # Families
 class Family:
     def __init__(self):
@@ -732,7 +787,7 @@ class Family:
 
     def get_child_by_id(self, id_):
         return self.__children[id_]
-    
+
     def get_children(self):
         return self.__children
 
@@ -834,7 +889,7 @@ class Individual:
                 results += list(children.keys())
                 for child in list(children.values()):
                     helper(child, results)
-        
+
         helper(self, results)
         return results
 
