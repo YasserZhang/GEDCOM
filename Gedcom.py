@@ -615,6 +615,7 @@ class Gedcom:
 
         return check_results
     
+    #US 21 Correct gender for role
     def check_Correct_gender(self): 
         families = self.get_families()
         check_results = {}
@@ -642,8 +643,40 @@ class Gedcom:
                 print("ERROR in US21: The Wife {w} in the family {f} violates correct gender".format(w=wife_id, f=fam_id))
             else:
                 check_results[wife_id] = "Yes"
-        print (check_results)
+                
         return check_results
+    
+    #Siblings Spacing US 13
+    def check_sibling_spacing(self):
+        families = self.get_families()
+        #individuals = self.get_individuals()
+        check_results = {}
+        for key in families:
+            family = families[key]
+            fam_id = family.get_id()
+            fam_children = family.list_children_ids()
+            #print("list of children", fam_children)
+            children_birth = []
+            if len(list(fam_children)) < 2:
+                #print("US 13: There are no childs or one child in family {f}".format(f=fam_id))
+                check_results[fam_id] = "N/A" # indicates that there is only 1 child
+            else:
+                for key in fam_children:
+                    child = self.get_individual_by_id(key)
+                    children_birth.append(child.get_birth())
+                    children_birth = sorted(children_birth, reverse=False)
+                    for x, y in zip(children_birth[::],children_birth[1::]):
+                        #print ("for loop", x, y, fam_id)  
+                        diff = y - x
+                        if (diff > timedelta(days=2) and diff < timedelta(days=243)):
+                            print("ERROR in US 13: Difference in sibling age is not possible in family {f}".format(f=fam_id))
+                            check_results[fam_id] = "Error"
+                        else: 
+                            check_results[fam_id] = "Yes"
+        #print(check_results)
+        return check_results
+    
+    
 # Families
 class Family:
     def __init__(self):
