@@ -732,6 +732,48 @@ class Gedcom:
                 check_results[fam_id] = 'No'
         return check_results
 
+    #US35 List recent births
+    def check_recent_births(self):
+        individuals = self.get_individuals()
+        check_results = {}
+        for indi_key in individuals:
+            individual = individuals[indi_key]
+            birth_date = individual.get_birth()
+            #print("birth", birth_date)
+            indi_id = individual.get_id()
+            present_date = date.today()
+            limit = timedelta(days=30)
+            #print(present_date - birth_date, indi_id)
+            if present_date - birth_date <= limit:
+                check_results[indi_id] = "Yes"
+            else:
+                check_results[indi_id] = "No" 
+        #print(check_results)
+        return check_results
+    
+    #US36 List recent deaths
+    def check_recent_deaths(self):
+        individuals = self.get_individuals()
+        check_results = {}
+        for indi_key in individuals:
+            individual = individuals[indi_key]
+            death_date = individual.get_death()
+            #print("birth", birth_date)
+            indi_id = individual.get_id()
+            present_date = date.today()
+            limit = timedelta(days=30)
+            #print(present_date - birth_date, indi_id)
+            if death_date:
+                if present_date - death_date <= limit:
+                    check_results[indi_id] = "Yes"
+                else:
+                    check_results[indi_id] = "No"     
+            else: 
+                check_results[indi_id] = "N/A"
+                #print("Error in US36: The person {i} is still alive".format(i=indi_id))
+        #print(check_results)
+        return check_results
+
 # Families
 class Family:
     def __init__(self):

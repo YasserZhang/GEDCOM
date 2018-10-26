@@ -219,5 +219,34 @@ class TestGedcomParser(unittest.TestCase):
         checked_results = ged.large_age_difference()
         self._check_ground_truth(checked_results, ground_truth_file_path)
 
+    # Testcase US 35
+    def test_recent_births(self,
+                                file_path='test_files/Family.ged',
+                                ground_truth_file_path='test_files/testcase_35.json'):
+        ged = Gedcom()
+        ged.parse(file_path)
+        ged.print_individuals()
+        ged.print_families()
+        check_results = ged.check_recent_births()
+        with open(ground_truth_file_path, 'r') as f:
+            ground_truths = json.load(f)
+        for key in ground_truths:
+            self.assertTrue(key in check_results)
+            self.assertEqual(ground_truths[key], check_results[key])
+        
+    # Testcase US 36
+    def test_recent_deaths(self, file_path='test_files/Family.ged',
+                                  ground_truth_file_path='test_files/testcase_36.json'):
+        ged = Gedcom()
+        ged.parse(file_path)
+        ged.print_individuals()
+        ged.print_families()
+        check_results = ged.check_recent_deaths()
+        with open(ground_truth_file_path, 'r') as f:
+            ground_truths = json.load(f)
+        for key in ground_truths:
+            self.assertTrue(key in check_results)
+            self.assertEqual(ground_truths[key], check_results[key])
+        
 if __name__ == "__main__":
     unittest.main()
