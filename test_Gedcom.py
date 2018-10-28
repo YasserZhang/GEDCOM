@@ -202,7 +202,7 @@ class TestGedcomParser(unittest.TestCase):
         checked_results = ged.check_sibling_spacing()
         self._check_ground_truth(checked_results, ground_truth_file_path)
         
-
+    # Sprint 3
     # Testcase US 28
     def test_order_siblings(self, file_path='test_files/Family.ged',
                                   ground_truth_file_path='test_files/testcase_28.json'):
@@ -218,6 +218,13 @@ class TestGedcomParser(unittest.TestCase):
         ged.parse(file_path)
         checked_results = ged.large_age_difference()
         self._check_ground_truth(checked_results, ground_truth_file_path)
+
+    # Testcase US 18
+    def test_no_one_marries_sibling(self, file_path='test_files/Family.ged'):
+        ged = Gedcom()
+        ged.parse(file_path)
+        checked_results = ged.check_no_one_marries_sibling()
+
 
 if __name__ == "__main__":
     unittest.main()
