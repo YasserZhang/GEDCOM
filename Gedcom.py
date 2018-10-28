@@ -500,10 +500,6 @@ class Gedcom:
                 results[id_(individual)] = "Correct"
         return results
 
-    #US 13 Siblings spacing
-    #def check_siblings_spacing(self):
-    #   individuals = self.get_individuals()
-
     # US 09 Check for old parents
     def check_old_parents(self):
         families = self.get_families()
@@ -687,7 +683,7 @@ class Gedcom:
             fam_children = family.list_children_ids()
             children_birth = []
             if len(list(fam_children)) < 2:
-                print("ERROR in US 28: There are not enough children to sort in family {f}".format(f=fam_id))
+                print("SPRINT 3 ERROR in US 28: There are not enough children to sort in family {f}".format(f=fam_id))
                 check_results[fam_id] = "No" # indicates that there is only 1 child
             else:
                 check_results[fam_id] = "Yes"
@@ -725,12 +721,29 @@ class Gedcom:
 
                 if(husb_age_when_married >= wife_age_when_married*2 or wife_age_when_married >= husb_age_when_married*2):
                     check_results[fam_id] = 'Yes'
-                    print("ERROR in US 34: Either the Husband or the wife in family {f} had an age twice or more than the other".format(f=fam_id))
+                    print("SPRINT 3 ERROR in US 34: Either the Husband or the wife in family {f} had an age twice or more than the other".format(f=fam_id))
                 else:
                     check_results[fam_id] = 'No'
             else:
                 check_results[fam_id] = 'No'
         return check_results
+
+    # US 18 Siblings should not marry
+    def check_no_one_marries_sibling(self):
+        results = {}
+        for individual in individuals(self):
+            # get all descendants ids
+            siblings_ids = set(individual.find_all_siblings())
+            spouse_ids = individual.find_spouse_ids()
+            spouse_is_a_sibling = False
+            for spouse_id in spouse_ids:
+                if spouse_id in siblings_ids:
+                    print("SPRINT 3 ERROR in US 18: Individual {i_id} married sibling {s_id}.".format(i_id=id_(individual), s_id=spouse_id))
+                    results[id_(individual)] = "Error"
+                    spouse_is_a_sibling = True
+            if not spouse_is_a_sibling:
+                results[id_(individual)] = "Correct"
+        return results
 
 # Families
 class Family:
@@ -900,3 +913,11 @@ class Individual:
         else:
             results = [fam.get_husband_id() for fam in own_families]
         return results
+    
+    def find_all_siblings(self):
+        siblings = []
+        for _, parent_family in self.get_parent_families().items():
+            for _, child in parent_family.get_children().items():
+                if child.get_id() != self.get_id():
+                    siblings.append(child.get_id())
+        return siblings
