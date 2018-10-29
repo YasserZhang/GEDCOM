@@ -231,5 +231,21 @@ class TestGedcomParser(unittest.TestCase):
         ged.parse(file_path)
         ged.check_no_one_marries_first_cousin()
 
+    # Test case US 31
+    def test_check_list_single(self, file_path='test_files/Family.ged',
+                                  ground_truth_file_path='test_files/testcase_31.json'):
+        ged = Gedcom()
+        ged.parse(file_path)
+        checked_results = ged.check_list_single()
+        self._check_ground_truth(checked_results, ground_truth_file_path)
+
+    # Test case US 30
+    def test_check_list_married(self, file_path='test_files/Family.ged',
+                                  ground_truth_file_path='test_files/testcase_30.json'):
+        ged = Gedcom()
+        ged.parse(file_path)
+        checked_results = ged.check_list_married()
+        self._check_ground_truth(checked_results, ground_truth_file_path)
+
 if __name__ == "__main__":
     unittest.main()
