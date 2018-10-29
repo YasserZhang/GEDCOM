@@ -223,8 +223,13 @@ class TestGedcomParser(unittest.TestCase):
     def test_no_one_marries_sibling(self, file_path='test_files/Family.ged'):
         ged = Gedcom()
         ged.parse(file_path)
-        checked_results = ged.check_no_one_marries_sibling()
-
+        ged.check_no_one_marries_sibling()
+    
+    # Testcase US 19
+    def test_no_one_marries_first_cousin(self, file_path='test_files/Family.ged'):
+        ged = Gedcom()
+        ged.parse(file_path)
+        ged.check_no_one_marries_first_cousin()
 
 if __name__ == "__main__":
     unittest.main()
