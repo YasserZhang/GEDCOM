@@ -745,6 +745,58 @@ class Gedcom:
                 results[id_(individual)] = "Correct"
         return results
 
+        # US31: List living single
+
+    def check_list_single(self):
+        individuals = self.get_individuals()
+        check_results = {}
+        married_list = []
+        unmarried_list = []
+        for key in individuals:
+            individual = individuals[key]
+            indi_id = individual.get_id()
+            if date.today().year - individual.get_birth().year > 30:
+                if not individual.find_spouse_ids():
+                    check_results[indi_id] = "Yes"
+                    unmarried_list.append(indi_id)
+            else:
+                married_list.append(indi_id)
+                check_results[indi_id] = "No"
+
+        print("US31: List of individuals that are single:")
+        print(*unmarried_list, sep=", ")
+
+        print("ERROR in US31: List of individuals that are NOT single:")
+        print(*married_list, sep=", ")
+
+        return check_results
+
+        # US30: List living married
+
+    def check_list_married(self):
+        individuals = self.get_individuals()
+        check_results = {}
+        married_list = []
+        unmarried_list = []
+        for key in individuals:
+            individual = individuals[key]
+            indi_id = individual.get_id()
+            if date.today().year - individual.get_birth().year > 30:
+                if individual.find_spouse_ids():
+                    check_results[indi_id] = "Yes"
+                    married_list.append(indi_id)
+            else:
+                unmarried_list.append(indi_id)
+                check_results[indi_id] = "No"
+
+        print("US30: List of individuals that are married:")
+        print(*married_list, sep=", ")
+
+        print("ERROR in US30: List of individuals that are NOT married:")
+        print(*unmarried_list, sep=", ")
+
+        return check_results
+
 # Families
 class Family:
     def __init__(self):
