@@ -9,11 +9,18 @@ class TestGedcomParser(unittest.TestCase):
         with open(ground_truth_file_path, 'r') as f:
             ground_truths = json.load(f)
         for key in ground_truths:
+            if ground_truths[key] != checked_results[key]:
+                print(key, ground_truths[key], checked_results)
             self.assertTrue(key in checked_results)
-            #self.assertEqual(ground_truths[key], checked_results[key])
+            self.assertEqual(ground_truths[key], checked_results[key])
+                # "{key}'s ground truth {ground} does not match {output}.".format(key=key,ground=ground_truths[key],output=checked_results[key])
+            #except Exception as e:
+                #print(key)
+                #print("ground truth:", ground_truths[key], "output:", checked_results[key])
+                #raise ValueError(e)
 
     # US04 marriage before divorce
-    def test_marriage_before_divorce(self,
+    def test_us04_marriage_before_divorce(self,
                                      file_path='test_files/Family.ged',
                                      ground_truth_file_path='test_files/gf.json'):
         ged = Gedcom()
@@ -27,7 +34,7 @@ class TestGedcomParser(unittest.TestCase):
         #print("check_marriage_before_divorce test on {f} passed.".format(f=file_path))
 
     # US06 divorce before death
-    def test_divorce_before_death(self, 
+    def test_us06_divorce_before_death(self, 
                     file_path='test_files/Family.ged', 
                     ground_truth_file_path='test_files/divorce_before_death.json'):
         ged = Gedcom()
@@ -41,7 +48,7 @@ class TestGedcomParser(unittest.TestCase):
         #print("check_divorce_before_death test on {f} passed.".format(f=file_path))
 
     # testcase for user story 03:
-    def test_birth_before_death(self,
+    def test_us03_birth_before_death(self,
                                 file_path='test_files/Family.ged',
                                 ground_truth_file_path='test_files/testcase_03.json'):
         ged = Gedcom()
@@ -56,7 +63,7 @@ class TestGedcomParser(unittest.TestCase):
         #print("Check_Birth_Before_Death test passed on {f}".format(f=file_path))
 
     # testcase for user story 08:
-    def test_childbirth_before_parentsMarriage(self,
+    def test_us08_childbirth_before_parentsMarriage(self,
                                               file_path='test_files/Family.ged',
                                               ground_truth_file_path='test_files/testcase_08.json'):
         ged = Gedcom()
@@ -70,7 +77,7 @@ class TestGedcomParser(unittest.TestCase):
         #print("Check_ChildBirth_Before_ParentsMariage test passed on {f}".format(f=file_path))
 
     # US05 marriage before death
-    def test_marriage_before_death(self,
+    def test_us05_marriage_before_death(self,
                     file_path='test_files/Family.ged',
                     ground_truth_file_path='test_files/marriage_before_death.json'):
         ged = Gedcom()
@@ -85,7 +92,7 @@ class TestGedcomParser(unittest.TestCase):
         #print("check_marriage_before_death test on {f} passed.".format(f=file_path))
 
     # US10 marriage after 14
-    def test_marriage_after_fourteen(self, file_path='test_files/Family.ged', ground_truth_file_path='test_files/marriage_before_fourteen.json'):
+    def test_us10_marriage_after_fourteen(self, file_path='test_files/Family.ged', ground_truth_file_path='test_files/marriage_before_fourteen.json'):
         ged = Gedcom()
         ged.parse(file_path)
         checked_results = ged.check_marriage_after_fourteen()
@@ -97,11 +104,13 @@ class TestGedcomParser(unittest.TestCase):
         #print("check_marriage_after_fourteen test on {f} passed.".format(f=file_path))
 
     # testcase for user story 02:
-    def test_birth_before_marriage(self,
+    def test_us02_birth_before_marriage(self,
                                 file_path='test_files/Family.ged',
                                 ground_truth_file_path='test_files/testcase_02.json'):
         ged = Gedcom()
         ged.parse(file_path)
+        ged.print_individuals()
+        ged.print_families()
         check_results = ged.check_birth_before_marriage()
         with open(ground_truth_file_path, 'r') as f:
             ground_truths = json.load(f)
@@ -111,13 +120,11 @@ class TestGedcomParser(unittest.TestCase):
         #print("Check_Birth_Before_Marriage test passed on {f}".format(f=file_path))
 
     # testcase for user story 07:
-    def test_age_lessthan_150(self,
+    def test_us07_age_lessthan_150(self,
                                 file_path='test_files/Family.ged',
                                 ground_truth_file_path='test_files/testcase_07.json'):
         ged = Gedcom()
         ged.parse(file_path)
-        ged.print_individuals()
-        ged.print_families()
         check_results = ged.check_age_lessthan_150()
         with open(ground_truth_file_path, 'r') as f:
             ground_truths = json.load(f)
@@ -128,14 +135,14 @@ class TestGedcomParser(unittest.TestCase):
 
     # Sprint 2
     # test US16
-    def test_male_last_names(self, file_path='test_files/Family.ged', ground_truth_file_path='test_files/male_last_names.json'):
+    def test_us16_male_last_names(self, file_path='test_files/Family.ged', ground_truth_file_path='test_files/male_last_names.json'):
         ged = Gedcom()
         ged.parse(file_path)
         checked_results = ged.check_male_last_names()
         self._check_ground_truth(checked_results, ground_truth_file_path)
 
     # testcase US 09
-    def test_old_parents(self,
+    def test_us09_old_parents(self,
                     file_path='test_files/Family.ged',
                     ground_truth_file_path='test_files/testcase_09.json'):
         ged = Gedcom()
@@ -149,7 +156,7 @@ class TestGedcomParser(unittest.TestCase):
         #print("Check_old_parents test passed on {f}.".format(f=file_path))
 
     # testcase US 12
-    def test_birth_before_death_of_parents(self,
+    def test_us12_birth_before_death_of_parents(self,
                     file_path='test_files/Family.ged',
                     ground_truth_file_path='test_files/testcase_12.json'):
     	ged = Gedcom()
@@ -164,14 +171,14 @@ class TestGedcomParser(unittest.TestCase):
     	#print("Check_birth_before_death_of_parents test passed on {f}".format(f=file_path))
 
     # testcase US 17
-    def test_marry_descendants(self,file_path='test_files/Family.ged'):
+    def test_us17_marry_descendants(self,file_path='test_files/Family.ged'):
         ged = Gedcom()
         ged.parse(file_path)
         check_results=ged.check_marry_descendants()
         return check_results
 
     # Testcase US 14
-    def test_check_multiple_births(self, file_path='test_files/Family.ged',
+    def test_us14_check_multiple_births(self, file_path='test_files/Family.ged',
                                     ground_truth_file_path='test_files/testcase_14.json'):
         ged = Gedcom()
         ged.parse(file_path)
@@ -179,7 +186,7 @@ class TestGedcomParser(unittest.TestCase):
         self._check_ground_truth(checked_results, ground_truth_file_path)
 
     # Testcase US 15
-    def test_check_siblings_count(self, file_path='test_files/Family.ged',
+    def test_us15_check_siblings_count(self, file_path='test_files/Family.ged',
                                   ground_truth_file_path='test_files/testcase_15.json'):
         ged = Gedcom()
         ged.parse(file_path)
@@ -187,7 +194,7 @@ class TestGedcomParser(unittest.TestCase):
         self._check_ground_truth(checked_results, ground_truth_file_path)
 
     #Testcase US 21
-    def test_check_Correct_gender(self, file_path='test_files/Family.ged',
+    def test_us21_check_Correct_gender(self, file_path='test_files/Family.ged',
                                     ground_truth_file_path='test_files/testcase_21.json'):
         ged = Gedcom()
         ged.parse(file_path)
@@ -195,7 +202,7 @@ class TestGedcomParser(unittest.TestCase):
         self._check_ground_truth(checked_results, ground_truth_file_path)
         
     #Testcase US 13
-    def test_check_Siblings_Spacing(self, file_path='test_files/Family.ged',
+    def test_us13_check_Siblings_Spacing(self, file_path='test_files/Family.ged',
                                     ground_truth_file_path='test_files/testcase_13.json'):
         ged = Gedcom()
         ged.parse(file_path)
@@ -204,7 +211,7 @@ class TestGedcomParser(unittest.TestCase):
         
     # Sprint 3
     # Testcase US 28
-    def test_order_siblings(self, file_path='test_files/Family.ged',
+    def test_us28_order_siblings(self, file_path='test_files/Family.ged',
                                   ground_truth_file_path='test_files/testcase_28.json'):
         ged = Gedcom()
         ged.parse(file_path)
@@ -212,7 +219,7 @@ class TestGedcomParser(unittest.TestCase):
         self._check_ground_truth(checked_results, ground_truth_file_path)
 
     # Testcase US 34
-    def test_large_age_difference(self, file_path='test_files/Family.ged',
+    def test_us34_large_age_difference(self, file_path='test_files/Family.ged',
                                   ground_truth_file_path='test_files/testcase_34.json'):
         ged = Gedcom()
         ged.parse(file_path)
@@ -220,13 +227,11 @@ class TestGedcomParser(unittest.TestCase):
         self._check_ground_truth(checked_results, ground_truth_file_path)
 
     # Testcase US 35
-    def test_recent_births(self,
+    def test_us35_recent_births(self,
                                 file_path='test_files/Family.ged',
                                 ground_truth_file_path='test_files/testcase_35.json'):
         ged = Gedcom()
         ged.parse(file_path)
-        ged.print_individuals()
-        ged.print_families()
         check_results = ged.check_recent_births()
         with open(ground_truth_file_path, 'r') as f:
             ground_truths = json.load(f)
@@ -235,12 +240,10 @@ class TestGedcomParser(unittest.TestCase):
             self.assertEqual(ground_truths[key], check_results[key])
         
     # Testcase US 36
-    def test_recent_deaths(self, file_path='test_files/Family.ged',
+    def test_us36_recent_deaths(self, file_path='test_files/Family.ged',
                                   ground_truth_file_path='test_files/testcase_36.json'):
         ged = Gedcom()
         ged.parse(file_path)
-        ged.print_individuals()
-        ged.print_families()
         check_results = ged.check_recent_deaths()
         with open(ground_truth_file_path, 'r') as f:
             ground_truths = json.load(f)
@@ -277,28 +280,25 @@ class TestGedcomParser(unittest.TestCase):
 #            self.assertEqual(ground_truths[key], check_results[key])
 #            
     # Testcase US 18
-    def test_no_one_marries_sibling(self, file_path='test_files/Family.ged'):
+    def test_us18_no_one_marries_sibling(self, file_path='test_files/Family.ged'):
         ged = Gedcom()
         ged.parse(file_path)
         ged.check_no_one_marries_sibling()
     
     # Testcase US 19
-    def test_no_one_marries_first_cousin(self, file_path='test_files/Family.ged'):
+    def test_us19_no_one_marries_first_cousin(self, file_path='test_files/Family.ged'):
         ged = Gedcom()
         ged.parse(file_path)
         ged.check_no_one_marries_first_cousin()
 
     # Test case US 31
-    def test_check_list_single(self, file_path='test_files/Family.ged',
-                                  ground_truth_file_path='test_files/testcase_31.json'):
+    def test_us31_check_list_single(self, file_path='test_files/Family.ged',ground_truth_file_path='test_files/testcase_31.json'):
         ged = Gedcom()
         ged.parse(file_path)
         checked_results = ged.check_list_single()
         self._check_ground_truth(checked_results, ground_truth_file_path)
-
     # Test case US 30
-    def test_check_list_married(self, file_path='test_files/Family.ged',
-                                  ground_truth_file_path='test_files/testcase_30.json'):
+    def test_us30_check_list_married(self, file_path='test_files/Family.ged', ground_truth_file_path='test_files/testcase_30.json'):
         ged = Gedcom()
         ged.parse(file_path)
         checked_results = ged.check_list_married()
