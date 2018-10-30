@@ -60,6 +60,9 @@ def parents(individual):
 def has_own_family(individual):
     return len(individual.get_own_families()) > 0
 
+def children(family):
+    return list(family.get_children().values())
+
 """
 def cousins(individual):
     cousins = []
@@ -591,6 +594,23 @@ class Gedcom:
 
     # US 14: Multiple births <= 5
     def check_multiple_births(self):
+        checked_results = {}
+        for family in families(self):
+            if len(children(family)) <= 0:
+                checked_results[id_(family)] = "Yes"
+                continue
+            same_birth_dict = {}
+            for child in children(family):
+                same_birth_dict[child.get_birth()] = same_birth_dict.get(child.get_birth(), 0) + 1
+                if same_birth_dict[child.get_birth()] == 5:
+                    print("ERROR in US14: Found multiple births at the same time greater than five in family {f}".format(f=id_(family)))
+                    checked_results[id_(family)] = "No"
+            if id_(family) not in checked_results:
+                checked_results[id_(family)] = "Yes"
+        return checked_results
+
+    """
+    def check_multiple_births(self):
         families = self.get_families()
         check_results = {}
         flag = 0
@@ -616,6 +636,7 @@ class Gedcom:
             else:
                 check_results[fam_id] = "Yes"
         return check_results
+    """
 
     # US 15: Fewer than 15 siblings
     def check_siblings_count(self):
@@ -764,7 +785,7 @@ class Gedcom:
             limit = timedelta(days=30)
             #print(present_date - birth_date, indi_id)
             if birth_date > present_date:
-                print("Error in US35: The person {i} birth date is invalid".format(i=indi_id))
+                print("SPRINT 3 ERROR in US35: The person {i} birth date is invalid".format(i=indi_id))
                 check_results[indi_id] = "Error"
             elif present_date - birth_date <= limit:
                 check_results[indi_id] = "Yes"
@@ -787,7 +808,7 @@ class Gedcom:
             #print(present_date - birth_date, indi_id)
             if death_date:
                 if death_date > present_date:
-                    print("Error in US36: The person {i} death date is invalid".format(i=indi_id))
+                    print("SPRINT 3 ERROR in US36: The person {i} death date is invalid".format(i=indi_id))
                     check_results[indi_id] = "Error"
                 elif present_date - death_date <= limit:
                     check_results[indi_id] = "Yes"
@@ -935,10 +956,10 @@ class Gedcom:
                 married_list.append(indi_id)
                 check_results[indi_id] = "No"
 
-        print("US31: List of individuals that are single:")
-        print(*unmarried_list, sep=", ")
+        #print("US31: List of individuals that are single:")
+        #print(*unmarried_list, sep=", ")
 
-        print("ERROR in US31: List of individuals that are NOT single:")
+        print("SPRINT 3 ERROR in US31: List of individuals that are NOT single:")
         print(*married_list, sep=", ")
 
         return check_results
@@ -946,27 +967,27 @@ class Gedcom:
         # US30: List living married
 
     def check_list_married(self):
-        individuals = self.get_individuals()
         check_results = {}
         married_list = []
         unmarried_list = []
-        for key in individuals:
-            individual = individuals[key]
+        for individual in individuals(self):
             indi_id = individual.get_id()
             if date.today().year - individual.get_birth().year > 30:
                 if individual.find_spouse_ids():
                     check_results[indi_id] = "Yes"
                     married_list.append(indi_id)
+                else:
+                    unmarried_list.append(indi_id)
+                    check_results[indi_id] = "No"
             else:
                 unmarried_list.append(indi_id)
                 check_results[indi_id] = "No"
 
-        print("US30: List of individuals that are married:")
-        print(*married_list, sep=", ")
+        #print("US30: List of individuals that are married:")
+        #print(*married_list, sep=", ")
 
-        print("ERROR in US30: List of individuals that are NOT married:")
+        print("SPRINT 3 ERROR in US30: List of individuals that are NOT married:")
         print(*unmarried_list, sep=", ")
-
         return check_results
 
 # Families
