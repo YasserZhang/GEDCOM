@@ -247,6 +247,34 @@ class TestGedcomParser(unittest.TestCase):
         for key in ground_truths:
             self.assertTrue(key in check_results)
             self.assertEqual(ground_truths[key], check_results[key])
-        
+#        
+#    # Testcase US 22
+#    def test_unique_ids(self, file_path='test_files/Family.ged',
+#                                  ground_truth_file_path='test_files/testcase_22.json'):
+#        ged = Gedcom()
+#        ged.parse(file_path)
+#        ged.print_individuals()
+#        ged.print_families()
+#        check_results = ged.check_unique_id()
+#        with open(ground_truth_file_path, 'r') as f:
+#            ground_truths = json.load(f)
+#        for key in ground_truths:
+#            self.assertTrue(key in check_results)
+#            self.assertEqual(ground_truths[key], check_results[key])
+#            
+#    #Testcase US23
+#    def test_same_name_dob(self, file_path='test_files/Family.ged',
+#                                  ground_truth_file_path='test_files/testcase_23.json'):
+#        ged = Gedcom()
+#        ged.parse(file_path)
+#        ged.print_individuals()
+#        ged.print_families()
+#        check_results = ged.check_same_name_dob()
+#        with open(ground_truth_file_path, 'r') as f:
+#            ground_truths = json.load(f)
+#        for key in ground_truths:
+#            self.assertTrue(key in check_results)
+#            self.assertEqual(ground_truths[key], check_results[key])
+#            
 if __name__ == "__main__":
     unittest.main()
