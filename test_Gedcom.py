@@ -202,7 +202,7 @@ class TestGedcomParser(unittest.TestCase):
         checked_results = ged.check_sibling_spacing()
         self._check_ground_truth(checked_results, ground_truth_file_path)
         
-
+    # Sprint 3
     # Testcase US 28
     def test_order_siblings(self, file_path='test_files/Family.ged',
                                   ground_truth_file_path='test_files/testcase_28.json'):
@@ -276,5 +276,33 @@ class TestGedcomParser(unittest.TestCase):
 #            self.assertTrue(key in check_results)
 #            self.assertEqual(ground_truths[key], check_results[key])
 #            
+    # Testcase US 18
+    def test_no_one_marries_sibling(self, file_path='test_files/Family.ged'):
+        ged = Gedcom()
+        ged.parse(file_path)
+        ged.check_no_one_marries_sibling()
+    
+    # Testcase US 19
+    def test_no_one_marries_first_cousin(self, file_path='test_files/Family.ged'):
+        ged = Gedcom()
+        ged.parse(file_path)
+        ged.check_no_one_marries_first_cousin()
+
+    # Test case US 31
+    def test_check_list_single(self, file_path='test_files/Family.ged',
+                                  ground_truth_file_path='test_files/testcase_31.json'):
+        ged = Gedcom()
+        ged.parse(file_path)
+        checked_results = ged.check_list_single()
+        self._check_ground_truth(checked_results, ground_truth_file_path)
+
+    # Test case US 30
+    def test_check_list_married(self, file_path='test_files/Family.ged',
+                                  ground_truth_file_path='test_files/testcase_30.json'):
+        ged = Gedcom()
+        ged.parse(file_path)
+        checked_results = ged.check_list_married()
+        self._check_ground_truth(checked_results, ground_truth_file_path)
+
 if __name__ == "__main__":
     unittest.main()

@@ -50,6 +50,29 @@ def wife(family):
 def husband(family):
     return family.get_husband_id()
 
+def parents(individual):
+    parents = []
+    for _, family in individual.get_parent_families().items():
+        parents.append(husband(family))
+        parents.append(wife(family))
+    return parents
+
+def has_own_family(individual):
+    return len(individual.get_own_families()) > 0
+
+"""
+def cousins(individual):
+    cousins = []
+    for _, family in individual.get_parent_families().items():
+        parents_ids = [husband(family), wife(family)]
+        for parent_id in parents_ids:
+            parent = .get_individual_by_id(parent_id)
+            for sibling in parent.find_all_siblings():
+                if sibling.get_own_family():
+                    cousins += [x.get_id() for x in sibling.get_own_family().get_children()]
+    return cousins
+"""               
+
 # Gedcom is a tree including families and individuals
 class Gedcom:
     def __init__(self):
@@ -500,10 +523,6 @@ class Gedcom:
                 results[id_(individual)] = "Correct"
         return results
 
-    #US 13 Siblings spacing
-    #def check_siblings_spacing(self):
-    #   individuals = self.get_individuals()
-
     # US 09 Check for old parents
     def check_old_parents(self):
         families = self.get_families()
@@ -687,7 +706,7 @@ class Gedcom:
             fam_children = family.list_children_ids()
             children_birth = []
             if len(list(fam_children)) < 2:
-                print("ERROR in US 28: There are not enough children to sort in family {f}".format(f=fam_id))
+                print("SPRINT 3 ERROR in US 28: There are not enough children to sort in family {f}".format(f=fam_id))
                 check_results[fam_id] = "No" # indicates that there is only 1 child
             else:
                 check_results[fam_id] = "Yes"
@@ -725,7 +744,7 @@ class Gedcom:
 
                 if(husb_age_when_married >= wife_age_when_married*2 or wife_age_when_married >= husb_age_when_married*2):
                     check_results[fam_id] = 'Yes'
-                    print("ERROR in US 34: Either the Husband or the wife in family {f} had an age twice or more than the other".format(f=fam_id))
+                    print("SPRINT 3 ERROR in US 34: Either the Husband or the wife in family {f} had an age twice or more than the other".format(f=fam_id))
                 else:
                     check_results[fam_id] = 'No'
             else:
@@ -853,7 +872,103 @@ class Gedcom:
 #        return check_results
 #    
     
-        
+    # US 18 Siblings should not marry
+    def check_no_one_marries_sibling(self):
+        results = {}
+        for individual in individuals(self):
+            # get all descendants ids
+            siblings_ids = set(individual.find_all_siblings())
+            spouses_ids = individual.find_spouse_ids()
+            spouse_is_a_sibling = False
+            for spouse_id in spouses_ids:
+                if spouse_id in siblings_ids:
+                    print("SPRINT 3 ERROR in US 18: Individual {i_id} married sibling {s_id}.".format(i_id=id_(individual), s_id=spouse_id))
+                    results[id_(individual)] = "Error"
+                    spouse_is_a_sibling = True
+            if not spouse_is_a_sibling:
+                results[id_(individual)] = "Correct"
+        return results
+
+    # US 19 First cousins should not marry
+    def check_no_one_marries_first_cousin(self):
+        results = {}
+        for individual in individuals(self):
+            if not has_own_family(individual):
+                continue
+            spouses_ids = individual.find_spouse_ids()
+            spouse_is_a_cousin = False
+            #print("parents", individual.get_id(), spouses_ids, parents(individual))
+            for parent_id in parents(individual):
+                parent = self.get_individual_by_id(parent_id)
+                #print("parent siblings",individual.get_id(), spouses_ids, parent.find_all_siblings())
+                for sibling_id in parent.find_all_siblings():
+                    sibling = self.get_individual_by_id(sibling_id)
+                    if not has_own_family(sibling):
+                        continue
+                    cousins_ids = set(sibling.find_all_children())
+                    #print("first cousins",individual.get_id(), spouses_ids, cousins_ids)
+                    for spouse_id in spouses_ids:
+                        if spouse_id in cousins_ids:
+                            print("SPRINT 3 ERROR in US 19: Individual {i_id} married cousin {s_id}.".format(i_id=id_(individual), s_id=spouse_id))
+                            results[id_(individual)] = "Error"
+                            spouse_is_a_cousin = True
+                            break
+            if not spouse_is_a_cousin:
+                results[id_(individual)] = "Correct"
+        #print(results)
+        return results
+
+        # US31: List living single
+    def check_list_single(self):
+        individuals = self.get_individuals()
+        check_results = {}
+        married_list = []
+        unmarried_list = []
+        for key in individuals:
+            individual = individuals[key]
+            indi_id = individual.get_id()
+            if date.today().year - individual.get_birth().year > 30:
+                if not individual.find_spouse_ids():
+                    check_results[indi_id] = "Yes"
+                    unmarried_list.append(indi_id)
+            else:
+                married_list.append(indi_id)
+                check_results[indi_id] = "No"
+
+        print("US31: List of individuals that are single:")
+        print(*unmarried_list, sep=", ")
+
+        print("ERROR in US31: List of individuals that are NOT single:")
+        print(*married_list, sep=", ")
+
+        return check_results
+
+        # US30: List living married
+
+    def check_list_married(self):
+        individuals = self.get_individuals()
+        check_results = {}
+        married_list = []
+        unmarried_list = []
+        for key in individuals:
+            individual = individuals[key]
+            indi_id = individual.get_id()
+            if date.today().year - individual.get_birth().year > 30:
+                if individual.find_spouse_ids():
+                    check_results[indi_id] = "Yes"
+                    married_list.append(indi_id)
+            else:
+                unmarried_list.append(indi_id)
+                check_results[indi_id] = "No"
+
+        print("US30: List of individuals that are married:")
+        print(*married_list, sep=", ")
+
+        print("ERROR in US30: List of individuals that are NOT married:")
+        print(*unmarried_list, sep=", ")
+
+        return check_results
+
 # Families
 class Family:
     def __init__(self):
@@ -1022,3 +1137,18 @@ class Individual:
         else:
             results = [fam.get_husband_id() for fam in own_families]
         return results
+    
+    def find_all_siblings(self):
+        siblings = []
+        for _, parent_family in self.get_parent_families().items():
+            for _, child in parent_family.get_children().items():
+                if child.get_id() != self.get_id():
+                    siblings.append(child.get_id())
+        return siblings
+    
+    def find_all_children(self):
+        children_ids = set()
+        for _, family in self.__own_families.items():
+            for child_id in family.get_children():
+                children_ids.add(child_id)
+        return list(children_ids)
