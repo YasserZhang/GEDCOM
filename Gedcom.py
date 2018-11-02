@@ -345,7 +345,7 @@ class Gedcom:
     def __compare_marriage_death(marriage_date, death_date, indi_id):
         if marriage_date:
             if marriage_date > death_date:
-                print("ERROR US05: Individual {i_id} has a marriage date {div_d} after the date of death {d_d}.".format(
+                print("SPRINT 1 ERROR US05: Individual {i_id} has a marriage date {div_d} after the date of death {d_d}.".format(
                     i_id=indi_id,
                     div_d=marriage_date.strftime("%Y-%m-%d"),
                     d_d=death_date.strftime("%Y-%m-%d")))
@@ -376,7 +376,7 @@ class Gedcom:
         if marriage_date:
             diff = abs(marriage_date.year - birth_date.year)
             if diff < 14:
-                print("ERROR US10: Individual {i_id} has a marriage date {div_d} before the age of fourteen.".format(
+                print("SPRINT 1 ERROR US10: Individual {i_id} has a marriage date {div_d} before the age of fourteen.".format(
                     i_id=indi_id,
                     div_d=marriage_date.strftime("%Y-%m-%d")))
                 return "No"
@@ -397,7 +397,7 @@ class Gedcom:
             if death_date is not None and birth_date is not None:
                 if birth_date > death_date:
                     check_results[indi_id] = "error"
-                    print("ERROR in US03: Individual {i_id} has birth date after death date".format(i_id=indi_id))
+                    print("SPRINT 1 ERROR in US03: Individual {i_id} has birth date after death date".format(i_id=indi_id))
                 else:
                     check_results[indi_id] = "N/A"
             else:
@@ -421,7 +421,7 @@ class Gedcom:
                         check_results[fam_id + "-" + child.get_id()] = "no"
                     else:
                         check_results[fam_id + "-" + child.get_id()] = "yes"
-                        print("ERROR in US08: Found a child {c_id}'s birthday {c_birth} before the marriage date {m_d} of {c_id}'s parent family {f_id}.".format(
+                        print("SPRINT 1 ERROR in US08: Found a child {c_id}'s birthday {c_birth} before the marriage date {m_d} of {c_id}'s parent family {f_id}.".format(
                             c_id=child.get_id(), m_d=fam_marriage_date, c_birth=child_birthday, f_id=fam_id))
         return check_results
 
@@ -445,7 +445,7 @@ class Gedcom:
     def __compare_marriage_birth(marriage_date, birth_date, indi_id):
         if marriage_date:
             if marriage_date < birth_date:
-                print("ERROR in US02: Individual {i_id} has a marriage date {div_d} before the individual is born.".format(
+                print("SPRINT 1 ERROR in US02: Individual {i_id} has a marriage date {div_d} before the individual is born.".format(
                     i_id=indi_id,
                     div_d=marriage_date.strftime("%Y-%m-%d")))
                 return "No"
@@ -468,13 +468,13 @@ class Gedcom:
             if death_date:
                 if death_date - birth_date >= limit:
                     check_results[indi_id] = "Error"
-                    print("ERROR in US07: Individual {i_id} age is more than 150 which is not possible".format(i_id=indi_id))
+                    print("SPRINT 1 ERROR in US07: Individual {i_id} age is more than 150 which is not possible".format(i_id=indi_id))
                 else:
                     check_results[indi_id] = "Yes"
             else:
                 if present_date - birth_date >= limit:
                     check_results[indi_id] = "Error"
-                    print("ERROR in US07: Individual {i_id} age is more than 150 which is not possible".format(i_id=indi_id))
+                    print("SPRINT 1 ERROR in US07: Individual {i_id} age is more than 150 which is not possible".format(i_id=indi_id))
                 else:
                     check_results[indi_id] = "Yes"
         return check_results
@@ -499,7 +499,7 @@ class Gedcom:
             for _, child in children.items():
                 child_last_name = child.get_name().split(" ")[1].strip()
                 if child_last_name != last_name:
-                    print("ERROR in US16: Individual {i_id}'s last name {i_ln} does not match family {f_id}'s name {f_n}.".format(
+                    print("SPRINT 2 ERROR in US16: Individual {i_id}'s last name {i_ln} does not match family {f_id}'s name {f_n}.".format(
                                     i_id=child.get_id(),
                                     i_ln=child_last_name,
                                     f_id=fam_id,
@@ -519,7 +519,7 @@ class Gedcom:
             spouse_is_a_descendant = False
             for spouse_id in spouse_ids:
                 if spouse_id in children_ids:
-                    print("ERROR in US17: Individual {i_id} married descendant {s_id}.".format(i_id=id_(individual), s_id=spouse_id))
+                    print("SPRINT 2 ERROR in US17: Individual {i_id} married descendant {s_id}.".format(i_id=id_(individual), s_id=spouse_id))
                     results[id_(individual)] = "Error"
                     spouse_is_a_descendant = True
             if not spouse_is_a_descendant:
@@ -545,12 +545,12 @@ class Gedcom:
             if(husb_birth and wife_birth):
                 if(date.today().year - husb_birth.year > 100 or date.today().year - wife_birth.year > 100):
                     check_results[fam_id] = "yes"
-                    print("ERROR in US12: The husband or the wife or both in family {f} are too old".format(f=fam_id))
+                    print("SPRINT 2 ERROR in US12: The husband or the wife or both in family {f} are too old".format(f=fam_id))
                 else:
                     check_results[fam_id] = "no"
             else:
                 check_results[fam_id] = "no"
-                print("ERROR in US12: The birth date of husband or wife is missing!")
+                print("SPRINT 2 ERROR in US12: The birth date of husband or wife is missing!")
         return check_results
 
     # US 12 Check birth before death of parents
@@ -578,7 +578,7 @@ class Gedcom:
                 else:
                     #print("2. ",husb_birth,"\t\t",husb_death)
                     check_results[fam_id] = "no"
-                    print("ERROR in US09: In family {f_id}, the Father with {h_id} has a death date before birth".format(f_id=fam_id,h_id=husband_id))
+                    print("SPRINT 2 ERROR in US09: In family {f_id}, the Father with {h_id} has a death date before birth".format(f_id=fam_id,h_id=husband_id))
             elif(wife_death is not None):
                 if(wife_birth.year < wife_death.year):
                     #print("1. ",husb_birth,"\t\t",husb_death)
@@ -586,7 +586,7 @@ class Gedcom:
                 else:
                     #print("2. ",husb_birth,"\t\t",husb_death)
                     check_results[fam_id] = "no"
-                    print("ERROR in US09: In family {f_id}, the Mother with {w_id} has a death date before birth".format(f_id=fam_id,w_id=wife_id))
+                    print("SPRINT 2 ERROR in US09: In family {f_id}, the Mother with {w_id} has a death date before birth".format(f_id=fam_id,w_id=wife_id))
             else:
                 #print("3. ",husb_birth,"\t\t",husb_death)
                 check_results[fam_id] = "yes"
@@ -603,7 +603,7 @@ class Gedcom:
             for child in children(family):
                 same_birth_dict[child.get_birth()] = same_birth_dict.get(child.get_birth(), 0) + 1
                 if same_birth_dict[child.get_birth()] == 5:
-                    print("ERROR in US14: Found multiple births at the same time greater than five in family {f}".format(f=id_(family)))
+                    print("SPRINT 2 ERROR in US14: Found multiple births at the same time greater than five in family {f}".format(f=id_(family)))
                     checked_results[id_(family)] = "No"
             if id_(family) not in checked_results:
                 checked_results[id_(family)] = "Yes"
@@ -649,7 +649,7 @@ class Gedcom:
 
             if len(fam_children) >= 15:
                 check_results[fam_id] = "No"
-                print("ERROR in US15: More than 15 siblings in in family {f}".format(f=fam_id))
+                print("SPRINT 2 ERROR in US15: More than 15 siblings in in family {f}".format(f=fam_id))
             else:
                 check_results[fam_id] = "Yes"
 
@@ -673,13 +673,13 @@ class Gedcom:
 
             if(husb_gender != 'M'):
                 check_results[husband_id] = "Error"
-                print("ERROR in US21: The husband {h} in the family {f} violates correct gender".format(h=husband_id, f=fam_id))
+                print("SPRINT 2 ERROR in US21: The husband {h} in the family {f} violates correct gender".format(h=husband_id, f=fam_id))
             else:
                 check_results[husband_id] = "Yes"
 
             if(wife_gender != 'F'):
                 check_results[wife_id] = "Error"
-                print("ERROR in US21: The Wife {w} in the family {f} violates correct gender".format(w=wife_id, f=fam_id))
+                print("SPRINT 2 ERROR in US21: The Wife {w} in the family {f} violates correct gender".format(w=wife_id, f=fam_id))
             else:
                 check_results[wife_id] = "Yes"
 
@@ -708,7 +708,7 @@ class Gedcom:
                         #print ("for loop", x, y, fam_id)
                         diff = y - x
                         if (diff > timedelta(days=2) and diff < timedelta(days=243)):
-                            print("ERROR in US 13: Difference in sibling age is not possible in family {f}".format(f=fam_id))
+                            print("SPRINT 2 ERROR in US 13: Difference in sibling age is not possible in family {f}".format(f=fam_id))
                             check_results[fam_id] = "Error"
                         else:
                             check_results[fam_id] = "Yes"
@@ -928,7 +928,7 @@ class Gedcom:
 #        for indi_key in individuals:
 #            individual = individuals[indi_key]
 #            indi_id = individual.get_id()
-#            if indi_id in individual_list: 
+#            if indi_id in individual_list:
 #                print("---------", indi_id, individual_list)
 #                print("Error in US22: Individual id {i} already exists".format(i=indi_id))
 #                check_results[indi_id] = "Error"
