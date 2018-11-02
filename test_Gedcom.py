@@ -200,7 +200,7 @@ class TestGedcomParser(unittest.TestCase):
         ged.parse(file_path)
         checked_results = ged.check_Correct_gender()
         self._check_ground_truth(checked_results, ground_truth_file_path)
-        
+
     #Testcase US 13
     def test_us13_check_Siblings_Spacing(self, file_path='test_files/Family.ged',
                                     ground_truth_file_path='test_files/testcase_13.json'):
@@ -208,7 +208,7 @@ class TestGedcomParser(unittest.TestCase):
         ged.parse(file_path)
         checked_results = ged.check_sibling_spacing()
         self._check_ground_truth(checked_results, ground_truth_file_path)
-        
+
     # Sprint 3
     # Testcase US 28
     def test_us28_order_siblings(self, file_path='test_files/Family.ged',
@@ -238,7 +238,7 @@ class TestGedcomParser(unittest.TestCase):
         for key in ground_truths:
             self.assertTrue(key in check_results)
             self.assertEqual(ground_truths[key], check_results[key])
-        
+
     # Testcase US 36
     def test_us36_recent_deaths(self, file_path='test_files/Family.ged',
                                   ground_truth_file_path='test_files/testcase_36.json'):
@@ -250,7 +250,7 @@ class TestGedcomParser(unittest.TestCase):
         for key in ground_truths:
             self.assertTrue(key in check_results)
             self.assertEqual(ground_truths[key], check_results[key])
-#        
+#
 #    # Testcase US 22
 #    def test_unique_ids(self, file_path='test_files/Family.ged',
 #                                  ground_truth_file_path='test_files/testcase_22.json'):
@@ -264,7 +264,7 @@ class TestGedcomParser(unittest.TestCase):
 #        for key in ground_truths:
 #            self.assertTrue(key in check_results)
 #            self.assertEqual(ground_truths[key], check_results[key])
-#            
+#
 #    #Testcase US23
 #    def test_same_name_dob(self, file_path='test_files/Family.ged',
 #                                  ground_truth_file_path='test_files/testcase_23.json'):
@@ -278,13 +278,13 @@ class TestGedcomParser(unittest.TestCase):
 #        for key in ground_truths:
 #            self.assertTrue(key in check_results)
 #            self.assertEqual(ground_truths[key], check_results[key])
-#            
+#
     # Testcase US 18
     def test_us18_no_one_marries_sibling(self, file_path='test_files/Family.ged'):
         ged = Gedcom()
         ged.parse(file_path)
         ged.check_no_one_marries_sibling()
-    
+
     # Testcase US 19
     def test_us19_no_one_marries_first_cousin(self, file_path='test_files/Family.ged'):
         ged = Gedcom()
@@ -302,6 +302,14 @@ class TestGedcomParser(unittest.TestCase):
         ged = Gedcom()
         ged.parse(file_path)
         checked_results = ged.check_list_married()
+        self._check_ground_truth(checked_results, ground_truth_file_path)
+
+    # Sprint-4
+    # Test case US 38:
+    def test_us38_check_upcoming_birthdays(self, file_path='test_files/Family.ged', ground_truth_file_path='test_files/testcase_38.json'):
+        ged = Gedcom()
+        ged.parse(file_path)
+        checked_results = ged.upcoming_birthdays()
         self._check_ground_truth(checked_results, ground_truth_file_path)
 
 if __name__ == "__main__":
