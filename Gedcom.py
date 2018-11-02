@@ -1,7 +1,7 @@
 # design classes
 # global names
 from datetime import timedelta, date
-
+import datetime
 import prettytable
 
 INFO_TAGS = {'NAME': 'Name', 'SEX': 'Gender'}
@@ -682,9 +682,9 @@ class Gedcom:
                 print("ERROR in US21: The Wife {w} in the family {f} violates correct gender".format(w=wife_id, f=fam_id))
             else:
                 check_results[wife_id] = "Yes"
-        
+
         return check_results
-    
+
     #Siblings Spacing US 13
     def check_sibling_spacing(self):
         families = self.get_families()
@@ -698,19 +698,19 @@ class Gedcom:
             children_birth = []
             if len(list(fam_children)) < 2:
                 #print("US 13: There are no childs or one child in family {f}".format(f=fam_id))
-                check_results[fam_id] = "N/A" 
+                check_results[fam_id] = "N/A"
             else:
                 for key in fam_children:
                     child = self.get_individual_by_id(key)
                     children_birth.append(child.get_birth())
                     children_birth = sorted(children_birth, reverse=False)
                     for x, y in zip(children_birth[::],children_birth[1::]):
-                        #print ("for loop", x, y, fam_id)  
+                        #print ("for loop", x, y, fam_id)
                         diff = y - x
                         if (diff > timedelta(days=2) and diff < timedelta(days=243)):
                             print("ERROR in US 13: Difference in sibling age is not possible in family {f}".format(f=fam_id))
                             check_results[fam_id] = "Error"
-                        else: 
+                        else:
                             check_results[fam_id] = "Yes"
         #print(check_results)
         return check_results
@@ -790,10 +790,10 @@ class Gedcom:
             elif present_date - birth_date <= limit:
                 check_results[indi_id] = "Yes"
             else:
-                check_results[indi_id] = "No" 
+                check_results[indi_id] = "No"
         #print(check_results)
         return check_results
-    
+
     #US36 List recent deaths
     def check_recent_deaths(self):
         individuals = self.get_individuals()
@@ -813,86 +813,13 @@ class Gedcom:
                 elif present_date - death_date <= limit:
                     check_results[indi_id] = "Yes"
                 else:
-                    check_results[indi_id] = "No"     
-            else: 
+                    check_results[indi_id] = "No"
+            else:
                 check_results[indi_id] = "N/A"
                 #print("Error in US36: The person {i} is still alive".format(i=indi_id))
         #print(check_results)
         return check_results
 
-
-#    #Sprint 4
-#    #US22 Unique Id's
-#    def check_unique_id(self):
-#        families = self.get_families()
-#        individuals = self.get_individuals()
-#        check_results = {}
-#        individual_list = []
-#        family_list = []
-#        for indi_key in individuals:
-#            individual = individuals[indi_key]
-#            indi_id = individual.get_id()
-#            if indi_id in individual_list: 
-#                print("---------", indi_id, individual_list)
-#                print("Error in US22: Individual id {i} already exists".format(i=indi_id))
-#                check_results[indi_id] = "Error"
-#            else:
-#                individual_list.append(indi_id)
-#                #print("indlist", individual_list)
-#                check_results[indi_id] = "Yes"
-#        for fam_key in families:
-#            family = families[fam_key]
-#            fam_id = family.get_id()
-#            if fam_id in family_list:
-#                print("Error in US22: Family id {f} already exists".format(f=fam_id))
-#                check_results[fam_id] = "Error"
-#            else:
-#                family_list.append(fam_id)
-#                check_results[fam_id] = "Yes"
-#        
-#        print(check_results)
-#        return check_results
-#    
-#    #US23 Same name and birth date
-#    def check_same_name_dob(self):
-#        individuals = self.get_individuals()
-#        check_results = {}
-#        for individual in individuals:
-#             individual = individuals[individual]
-#             indi_id = individual.get_id()
-#             for compare_indiv in individuals:
-#                compare_indiv = individuals[compare_indiv]
-#                cmp_indi_id = individual.get_id()
-#                if individual.get_name == compare_indiv.get_name:
-#                    print("first if", individual.get_name, compare_indiv.get_name)
-#                # same name, compare birthdate
-#                    if compare_indiv.get_birth == individual.get_birth:
-#                        print("Error in  US23")
-#                        check_results[cmp_indi_id] = "Error"
-#                    else:
-#                        check_results[cmp_indi_id] = "Yes"
-#                else:
-#                    check_results[cmp_indi_id] = "Yes"
-##        for indi_key in individuals: 
-##            individual1 = individuals[indi_key]
-##            indi_id = individual1.get_id()
-##            birth_date1 = individual1.get_birth()
-##            indi_name1 = individual1.get_name()
-##            for ind_id in individuals:    
-##                individual = individuals[indi_key]
-##                indiv_id = individual.get_id()
-##                birth_date = individual.get_birth()
-##                indi_name = individual.get_name()
-##                print("second for loop", birth_date, indi_name, birth_date1, indi_name1)
-##                if(birth_date == birth_date1 and indi_name1 == indi_name and indiv_id != indi_id):
-##                    print("Error in US23: Individual with {i} doesn't have unique birthdate".format(i=indiv_id))
-##                    check_results[indiv_id] = "Error"
-##                else:
-##                    check_results[indiv_id] = "Yes"
-#        print(check_results)
-#        return check_results
-#    
-    
     # US 18 Siblings should not marry
     def check_no_one_marries_sibling(self):
         results = {}
@@ -960,7 +887,7 @@ class Gedcom:
         #print(*unmarried_list, sep=", ")
 
         print("SPRINT 3 ERROR in US31: List of individuals that are NOT single:")
-        print(*married_list, sep=", ")
+        # print(*married_list, sep=", ")
 
         return check_results
 
@@ -987,8 +914,107 @@ class Gedcom:
         #print(*married_list, sep=", ")
 
         print("SPRINT 3 ERROR in US30: List of individuals that are NOT married:")
-        print(*unmarried_list, sep=", ")
+        # print(*unmarried_list, sep=", ")
         return check_results
+
+#    #Sprint 4
+#    #US22 Unique Id's
+#    def check_unique_id(self):
+#        families = self.get_families()
+#        individuals = self.get_individuals()
+#        check_results = {}
+#        individual_list = []
+#        family_list = []
+#        for indi_key in individuals:
+#            individual = individuals[indi_key]
+#            indi_id = individual.get_id()
+#            if indi_id in individual_list: 
+#                print("---------", indi_id, individual_list)
+#                print("Error in US22: Individual id {i} already exists".format(i=indi_id))
+#                check_results[indi_id] = "Error"
+#            else:
+#                individual_list.append(indi_id)
+#                #print("indlist", individual_list)
+#                check_results[indi_id] = "Yes"
+#        for fam_key in families:
+#            family = families[fam_key]
+#            fam_id = family.get_id()
+#            if fam_id in family_list:
+#                print("Error in US22: Family id {f} already exists".format(f=fam_id))
+#                check_results[fam_id] = "Error"
+#            else:
+#                family_list.append(fam_id)
+#                check_results[fam_id] = "Yes"
+#
+#        print(check_results)
+#        return check_results
+#
+#    #US23 Same name and birth date
+#    def check_same_name_dob(self):
+#        individuals = self.get_individuals()
+#        check_results = {}
+#        for individual in individuals:
+#             individual = individuals[individual]
+#             indi_id = individual.get_id()
+#             for compare_indiv in individuals:
+#                compare_indiv = individuals[compare_indiv]
+#                cmp_indi_id = individual.get_id()
+#                if individual.get_name == compare_indiv.get_name:
+#                    print("first if", individual.get_name, compare_indiv.get_name)
+#                # same name, compare birthdate
+#                    if compare_indiv.get_birth == individual.get_birth:
+#                        print("Error in  US23")
+#                        check_results[cmp_indi_id] = "Error"
+#                    else:
+#                        check_results[cmp_indi_id] = "Yes"
+#                else:
+#                    check_results[cmp_indi_id] = "Yes"
+##        for indi_key in individuals:
+##            individual1 = individuals[indi_key]
+##            indi_id = individual1.get_id()
+##            birth_date1 = individual1.get_birth()
+##            indi_name1 = individual1.get_name()
+##            for ind_id in individuals:
+##                individual = individuals[indi_key]
+##                indiv_id = individual.get_id()
+##                birth_date = individual.get_birth()
+##                indi_name = individual.get_name()
+##                print("second for loop", birth_date, indi_name, birth_date1, indi_name1)
+##                if(birth_date == birth_date1 and indi_name1 == indi_name and indiv_id != indi_id):
+##                    print("Error in US23: Individual with {i} doesn't have unique birthdate".format(i=indiv_id))
+##                    check_results[indiv_id] = "Error"
+##                else:
+##                    check_results[indiv_id] = "Yes"
+#        print(check_results)
+#        return check_results
+
+    # US38 Upcoming birthdays
+    def upcoming_birthdays(self):
+        individuals = self.get_individuals()
+        check_results = {}
+        for indi_key in individuals:
+            individual = individuals[indi_key]
+            indi_id = individual.get_id()
+            birth_date = individual.get_birth()
+            birth_date = str(birth_date).split('-')[1:]
+            start_date = date.today() + datetime.timedelta(+30)
+            start_date = str(start_date).split('-')[1:]
+
+            if int(start_date[0]) - int(birth_date[0]) == 1 and \
+                        int(start_date[1]) <= int(birth_date[1]):
+                # print(int(start_date[0]), int(birth_date[0]))
+                check_results[indi_id] = "Yes"
+            elif int(start_date[0]) - int(birth_date[0]) == 0 and \
+                        int(start_date[1]) >= int(birth_date[1]):
+                # print(int(start_date[0]), int(birth_date[0]))
+                check_results[indi_id] = "Yes"
+            else:
+                # print(False)
+                print("SPRINT 4 ERROR in US38: Individual {i} does not have birthday in the next 30 days".format(i=indi_id))
+                check_results[indi_id] = "No"
+        return check_results
+
+
 
 # Families
 class Family:
