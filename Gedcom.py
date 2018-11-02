@@ -260,6 +260,7 @@ class Gedcom:
     def get_individual_by_id(self, id_):
         return self.__individual_dict[id_]
 
+    # Sprint 1
     # US04 Marriage before Divorce
     def check_marriage_before_divorce(self):
         results = {}
@@ -272,16 +273,16 @@ class Gedcom:
     def __compare_marriage_divorce(family):
         if marriage_date(family) and divorce_date(family):
             if marriage_date(family) > divorce_date(family):
-                print("ERROR in US04: Family {id_}'s marriage Date({m_t}) is later than the divorce date ({d_t}).".format(
+                print("SPRINT 1 ERROR in US04: Family {id_}'s marriage Date({m_t}) is later than the divorce date ({d_t}).".format(
                     id_=family.get_id(), m_t=marriage_date(family), d_t=divorce_date(family)))
                 return False
         elif marriage_date(family) is None:
             if divorce_date(family):
-                print("ERROR in US04: Family {id_} has divorce date ({d_t}) but no marriage date.".format(
+                print("SPRINT 1 ERROR in US04: Family {id_} has divorce date ({d_t}) but no marriage date.".format(
                     id_=id_(family), d_t=divorce_date(family)))
                 return False
             else:
-                print("ERROR in US04: Family {id_} does not have marriage date".format(id_=id_(family)))
+                print("SPRINT 1 ERROR in US04: Family {id_} does not have marriage date".format(id_=id_(family)))
                 return False
         return True
 
@@ -309,7 +310,7 @@ class Gedcom:
     def __compare_divorce_death(divorce_date, death_date, indi_id, fam_id, checked_results):
         if divorce_date:
             if divorce_date > death_date:
-                print("ERROR US06: Individual {i_id} of Family {f_id} has a divorce date {div_d} after the date of death {d_d}.".format(
+                print("SPRINT 1 ERROR US06: Individual {i_id} of Family {f_id} has a divorce date {div_d} after the date of death {d_d}.".format(
                     i_id=indi_id,
                     f_id = fam_id,
                     div_d=divorce_date.strftime("%Y-%m-%d"),
@@ -492,7 +493,7 @@ class Gedcom:
             wife = self.__individual_dict[family.get_wife_id()]
             wife_last_name = wife.get_name().split(" ")[1].strip()
             if wife_last_name != last_name:
-                print("ERROR in US16: Individual {i_id}'s last name {i_ln} does not match family {f_id}'s name {f_n}.".format(
+                print("SPRINT 2 ERROR in US16: Individual {i_id}'s last name {i_ln} does not match family {f_id}'s name {f_n}.".format(
                     i_id=wife.get_id(),i_ln=wife_last_name,f_id=fam_id,f_n=last_name))
                 checked_results[fam_id] = "No"
             children = family.get_children()
