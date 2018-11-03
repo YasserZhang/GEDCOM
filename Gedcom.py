@@ -743,6 +743,7 @@ class Gedcom:
     def large_age_difference(self):
         families = self.get_families()
         check_results = {}
+        large_age_difference = []
         for key in families:
             family = families[key]
             fam_id = family.get_id()
@@ -766,11 +767,13 @@ class Gedcom:
 
                 if(husb_age_when_married >= wife_age_when_married*2 or wife_age_when_married >= husb_age_when_married*2):
                     check_results[fam_id] = 'Yes'
+                    large_age_difference.append(fam_id)
                     print("SPRINT 3 ERROR in US 34: Either the Husband or the wife in family {f} had an age twice or more than the other".format(f=fam_id))
                 else:
                     check_results[fam_id] = 'No'
             else:
                 check_results[fam_id] = 'No'
+        print(large_age_difference)
         return check_results
 
     #US35 List recent births
@@ -888,7 +891,7 @@ class Gedcom:
         #print(*unmarried_list, sep=", ")
 
         print("SPRINT 3 ERROR in US31: List of individuals that are NOT single:")
-        # print(*married_list, sep=", ")
+        print(*married_list, sep=", ")
 
         return check_results
 
@@ -915,7 +918,7 @@ class Gedcom:
         #print(*married_list, sep=", ")
 
         print("SPRINT 3 ERROR in US30: List of individuals that are NOT married:")
-        # print(*unmarried_list, sep=", ")
+        print(*unmarried_list, sep=", ")
         return check_results
 
 #    #Sprint 4
@@ -993,6 +996,7 @@ class Gedcom:
     def upcoming_birthdays(self):
         individuals = self.get_individuals()
         check_results = {}
+        upcoming_list = []
         for indi_key in individuals:
             individual = individuals[indi_key]
             indi_id = individual.get_id()
@@ -1003,18 +1007,57 @@ class Gedcom:
 
             if int(start_date[0]) - int(birth_date[0]) == 1 and \
                         int(start_date[1]) <= int(birth_date[1]):
+                upcoming_list.append(indi_id)
                 # print(int(start_date[0]), int(birth_date[0]))
                 check_results[indi_id] = "Yes"
             elif int(start_date[0]) - int(birth_date[0]) == 0 and \
                         int(start_date[1]) >= int(birth_date[1]):
+                upcoming_list.append(indi_id)
                 # print(int(start_date[0]), int(birth_date[0]))
                 check_results[indi_id] = "Yes"
             else:
                 # print(False)
                 print("SPRINT 4 ERROR in US38: Individual {i} does not have birthday in the next 30 days".format(i=indi_id))
                 check_results[indi_id] = "No"
+        print(upcoming_list)
         return check_results
 
+    # US 39 Upcoming Marriage_anniversaries
+    def upcoming_anniversaries(self):
+        families = self.get_families()
+        check_results = {}
+        upcoming_list = []
+        for key in families:
+            family = families[key]
+            fam_id = family.get_id()
+            fam_marriage_date = family.get_marriage_date()
+            fam_marriage_date = str(fam_marriage_date).split('-')[1:]
+            # print(fam_marriage_date)
+            start_date = date.today() + datetime.timedelta(+30)
+            start_date = str(start_date).split('-')[1:]
+            # print(start_date)
+
+            if fam_marriage_date:
+                if int(start_date[0]) - int(fam_marriage_date[0]) == 1 and \
+                            int(start_date[1]) <= int(fam_marriage_date[1]):
+                    upcoming_list.append(fam_id)
+                    # print(int(start_date[0]), int(fam_marriage_date[0]))
+                    check_results[fam_id] = "Yes"
+                elif int(start_date[0]) - int(fam_marriage_date[0]) == 0 and \
+                            int(start_date[1]) >= int(fam_marriage_date[1]):
+                    upcoming_list.append(fam_id)
+                    # print(int(start_date[0]), int(fam_marriage_date[0]))
+                    check_results[fam_id] = "Yes"
+                else:
+                    # print(False)
+                    print("SPRINT 4 ERROR in US39: Family {f} does not have their anniversary in the next 30 days".format(f=fam_id))
+                    check_results[fam_id] = "No"
+            else:
+                # print(False)
+                print("SPRINT 4 ERROR in US39: Family {f} does not have their anniversary in the next 30 days".format(f=fam_id))
+                check_results[fam_id] = "No"
+        print(upcoming_list)
+        return check_results
 
 
 # Families
