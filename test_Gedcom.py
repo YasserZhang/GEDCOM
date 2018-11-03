@@ -312,5 +312,11 @@ class TestGedcomParser(unittest.TestCase):
         checked_results = ged.upcoming_birthdays()
         self._check_ground_truth(checked_results, ground_truth_file_path)
 
+    # Test case US 39:
+    def test_us38_check_upcoming_anniversaries(self, file_path='test_files/Family.ged', ground_truth_file_path='test_files/testcase_39.json'):
+        ged = Gedcom()
+        ged.parse(file_path)
+        checked_results = ged.upcoming_anniversaries()
+        self._check_ground_truth(checked_results, ground_truth_file_path)
 if __name__ == "__main__":
     unittest.main()
