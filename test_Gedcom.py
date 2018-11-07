@@ -321,6 +321,12 @@ class TestGedcomParser(unittest.TestCase):
         checked_results = ged.check_unique_family()
         self._check_ground_truth(checked_results, ground_truth_file_path)
 
+    # Test case US 25
+    def test_s4us25_check_unique_first_name_in_family(self, file_path='test_files/Family.ged', ground_truth_file_path='test_files/testcase_25.json'):
+        ged = Gedcom()
+        ged.parse(file_path)
+        checked_results = ged.check_unique_first_name_in_family()
+        self._check_ground_truth(checked_results, ground_truth_file_path)
 
 if __name__ == "__main__":
     unittest.main()

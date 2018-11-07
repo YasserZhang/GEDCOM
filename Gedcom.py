@@ -1043,6 +1043,24 @@ class Gedcom:
             results[id_(family)] = 'OK'
         return results
 
+    # US 25 Unique first names in families
+    def check_unique_first_name_in_family(self):
+        results = {}
+        for family in families(self):
+            first_names = set()
+            husband_first_name = family.get_husband_name().split(' ')[0]
+            wife_first_name = family.get_wife_name().split(' ')[0]
+            children_first_names = [name.split(' ')[0] for name in family.list_children_names()]
+            for first_name in [husband_first_name, wife_first_name] + children_first_names:
+                if first_name not in first_names:
+                    first_names.add(first_name)
+                else:
+                    print('SPRINT 4 ERROR IN US25: First name {name} is given to more than two members in family {f_id}.'.format(name=first_name, f_id=id_(family)))
+                    results[id_(family)] = 'Error'
+            if id_(family) not in results:
+                results[id_(family)] = 'OK'
+        return results
+
 # Families
 class Family:
     def __init__(self):
@@ -1084,11 +1102,20 @@ class Family:
     def set_husband_name(self, name):
         self.__husband_name = name
 
+    def get_husband_name(self):
+        return self.__husband_name
+
     def get_wife_id(self):
         return self.__wife_id
 
     def set_wife_name(self, name):
         self.__wife_name = name
+
+    def get_wife_name(self):
+        return self.__wife_name
+
+    def list_children_names(self):
+        return [indi.get_name() for indi in self.__children.values()]
 
     def list_children_ids(self):
         return set([key for key in self.__children])
