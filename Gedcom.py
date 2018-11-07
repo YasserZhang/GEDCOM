@@ -610,35 +610,6 @@ class Gedcom:
                 checked_results[id_(family)] = "Yes"
         return checked_results
 
-    """
-    def check_multiple_births(self):
-        families = self.get_families()
-        check_results = {}
-        flag = 0
-        for key in families:
-            family = families[key]
-            fam_id = family.get_id()
-            fam_children = family.list_children_ids()
-
-            for ids, key in zip(range(len(fam_children)-1), fam_children):
-                if len(fam_children) > 1:
-                    fam_list = list(fam_children)
-                    if self.get_individual_by_id(fam_list[ids]).get_birth() == \
-                            self.get_individual_by_id(fam_list[ids+1]).get_birth():
-                        flag += 1
-                    else:
-                        flag = 0
-                else:
-                    check_results[fam_id] = 'Yes'
-
-            if flag >= 5:
-                check_results[fam_id] = "No"
-                print("ERROR in US14: Found multiple births at the same time greater than five in family {f}".format(f=fam_id))
-            else:
-                check_results[fam_id] = "Yes"
-        return check_results
-    """
-
     # US 15: Fewer than 15 siblings
     def check_siblings_count(self):
         families = self.get_families()
@@ -886,17 +857,13 @@ class Gedcom:
             else:
                 married_list.append(indi_id)
                 check_results[indi_id] = "No"
-
         #print("US31: List of individuals that are single:")
         #print(*unmarried_list, sep=", ")
-
         print("SPRINT 3 ERROR in US31: List of individuals that are NOT single:")
         print(*married_list, sep=", ")
-
         return check_results
 
-        # US30: List living married
-
+    # US30: List living married
     def check_list_married(self):
         check_results = {}
         married_list = []
@@ -1019,7 +986,7 @@ class Gedcom:
                 # print(False)
                 print("SPRINT 4 ERROR in US38: Individual {i} does not have birthday in the next 30 days".format(i=indi_id))
                 check_results[indi_id] = "No"
-        print(upcoming_list)
+        #print(upcoming_list)
         return check_results
 
     # US 39 Upcoming Marriage_anniversaries
@@ -1056,9 +1023,25 @@ class Gedcom:
                 # print(False)
                 print("SPRINT 4 ERROR in US39: Family {f} does not have their anniversary in the next 30 days".format(f=fam_id))
                 check_results[fam_id] = "No"
-        print(upcoming_list)
+        #print(upcoming_list)
         return check_results
 
+    # US 24 Unique families by spouses
+    def check_unique_family(self):
+        family_dict = {}
+        results = {}
+        for family in families(self):
+            husband_name = self.__individual_dict[husband(family)].get_name()
+            wife_name = self.__individual_dict[wife(family)].get_name()
+            family_key = '-'.join([husband_name, wife_name])
+            if family_key in family_dict:
+                if family_dict[family_key][0] == marriage_date(family):
+                    print('SPRINT 4 ERROR in US24: Family {f_id1} has the same marriage date and spouse names with Family {f_id2}.'.format(f_id1=id_(family),f_id2=family_dict[family_key][1]))
+                    results[id_(family)] = 'Error'
+                    continue
+            family_dict[family_key] = [marriage_date(family), id_(family)]
+            results[id_(family)] = 'OK'
+        return results
 
 # Families
 class Family:
