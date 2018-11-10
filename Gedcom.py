@@ -1061,6 +1061,67 @@ class Gedcom:
                 results[id_(family)] = 'OK'
         return results
 
+    # US 01 : Dates before current date
+    def check_current_dates(self):
+        individuals = self.get_individuals()
+        check_results = {}
+        for i in individuals:
+            individual = individuals[i]
+            indi_id = individual.get_id()
+            birth_date = individual.get_birth()
+            death_date = individual.get_death()
+            if birth_date > date.today():
+                print("SPRINT 4 ERROR in US01: Individual {i_id} has birth date {b_date} after the current date!".
+                      format(i_id=indi_id, b_date=birth_date))
+                check_results[indi_id] = "No"
+            check_results[indi_id] = "Yes"
+
+            if death_date:
+                if death_date > date.today():
+                    print("SPRINT 4 ERROR in US01: Individual {i_id} has death date {d_date} after the current date!".
+                          format(i_id=indi_id, d_date=death_date))
+                    check_results[indi_id] = "No"
+                check_results[indi_id] = "Yes"
+
+        families = self.get_families()
+        for f in families:
+            family = families[f]
+            fam_id = family.get_id()
+            marriage_date = family.get_marriage_date()
+            divorce_date = family.get_divorce_date()
+
+            if marriage_date:
+                if marriage_date > date.today():
+                    print("SPRINT 4 ERROR in US01: Family {f_id} has marriage date {m_date} after the current date!".
+                          format(f_id=fam_id, m_date=marriage_date))
+                    check_results[fam_id] = "No"
+                check_results[fam_id] = "Yes"
+
+            if divorce_date:
+                if divorce_date > date.today():
+                    print("SPRINT 4 ERROR in US01: Family {f_id} has divorce date {d_date} after the current date!".
+                          format(f_id=fam_id, d_date=divorce_date))
+                    check_results[fam_id] = "No"
+                check_results[fam_id] = "Yes"
+
+        return check_results
+
+    # US 29: List deceased
+    def check_list_deaths(self):
+        check_results = {}
+        deceased_list = []
+        for individual in individuals(self):
+            indi_id = individual.get_id()
+            if individual.get_death():
+                check_results[indi_id] = "Yes"
+                deceased_list.append(indi_id)
+            else:
+                check_results[indi_id] = "No"
+
+        print("SPRINT 4 ERROR in US29: List of individuals that are deceased:")
+        print(*deceased_list, sep=", ")
+        return check_results
+
 # Families
 class Family:
     def __init__(self):
