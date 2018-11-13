@@ -1,6 +1,7 @@
 # design classes
 # global names
 from datetime import timedelta, date
+import time
 import datetime
 import prettytable
 
@@ -888,77 +889,86 @@ class Gedcom:
         print(*unmarried_list, sep=", ")
         return check_results
 
-#    #Sprint 4
-#    #US22 Unique Id's
-#    def check_unique_id(self):
-#        families = self.get_families()
-#        individuals = self.get_individuals()
-#        check_results = {}
-#        individual_list = []
-#        family_list = []
-#        for indi_key in individuals:
-#            individual = individuals[indi_key]
-#            indi_id = individual.get_id()
-#            if indi_id in individual_list:
-#                print("---------", indi_id, individual_list)
-#                print("Error in US22: Individual id {i} already exists".format(i=indi_id))
-#                check_results[indi_id] = "Error"
-#            else:
-#                individual_list.append(indi_id)
-#                #print("indlist", individual_list)
-#                check_results[indi_id] = "Yes"
-#        for fam_key in families:
-#            family = families[fam_key]
-#            fam_id = family.get_id()
-#            if fam_id in family_list:
-#                print("Error in US22: Family id {f} already exists".format(f=fam_id))
-#                check_results[fam_id] = "Error"
-#            else:
-#                family_list.append(fam_id)
-#                check_results[fam_id] = "Yes"
-#
-#        print(check_results)
-#        return check_results
-#
-#    #US23 Same name and birth date
-#    def check_same_name_dob(self):
-#        individuals = self.get_individuals()
-#        check_results = {}
-#        for individual in individuals:
-#             individual = individuals[individual]
-#             indi_id = individual.get_id()
-#             for compare_indiv in individuals:
-#                compare_indiv = individuals[compare_indiv]
-#                cmp_indi_id = individual.get_id()
-#                if individual.get_name == compare_indiv.get_name:
-#                    print("first if", individual.get_name, compare_indiv.get_name)
-#                # same name, compare birthdate
-#                    if compare_indiv.get_birth == individual.get_birth:
-#                        print("Error in  US23")
-#                        check_results[cmp_indi_id] = "Error"
-#                    else:
-#                        check_results[cmp_indi_id] = "Yes"
-#                else:
-#                    check_results[cmp_indi_id] = "Yes"
-##        for indi_key in individuals:
-##            individual1 = individuals[indi_key]
-##            indi_id = individual1.get_id()
-##            birth_date1 = individual1.get_birth()
-##            indi_name1 = individual1.get_name()
-##            for ind_id in individuals:
-##                individual = individuals[indi_key]
-##                indiv_id = individual.get_id()
-##                birth_date = individual.get_birth()
-##                indi_name = individual.get_name()
-##                print("second for loop", birth_date, indi_name, birth_date1, indi_name1)
-##                if(birth_date == birth_date1 and indi_name1 == indi_name and indiv_id != indi_id):
-##                    print("Error in US23: Individual with {i} doesn't have unique birthdate".format(i=indiv_id))
-##                    check_results[indiv_id] = "Error"
-##                else:
-##                    check_results[indiv_id] = "Yes"
-#        print(check_results)
-#        return check_results
-
+    #Sprint 4   
+    
+    
+    
+    # US 33
+    def check_orphans(self):
+        families = self.get_families()
+        check_results = {}
+        for key in families:
+            family = families[key]
+            fam_id = family.get_id()
+            
+            husband_id = family.get_husband_id()
+            wife_id = family.get_wife_id()
+            
+            husb = self.get_individual_by_id(husband_id)
+            wife = self.get_individual_by_id(wife_id)
+            fam_children = family.list_children_ids()
+            
+            husb_death = husb.get_death()
+            wife_death = wife.get_death()
+            
+            for key in fam_children:
+                child = self.get_individual_by_id(key)
+                child_birthday = child.get_birth().strftime('%Y-%m-%d')
+                childBirth = datetime.datetime.strptime(child_birthday,"%Y-%m-%d")
+                child_deathday = child.get_death()
+                present_date = date.today().strftime('%Y-%m-%d')
+                if len(fam_children) == 0:
+                    check_results[key] = "N/A"
+                else:
+                    if husb_death and wife_death:
+                        if child_deathday:
+                            check_results[key] = "Error"
+                            print("Error in US33: The child {c} is not alive".format(c=key))
+                        else:    
+                            today = datetime.datetime.strptime(present_date,"%Y-%m-%d")
+                            age = today.year - childBirth.year
+                            if(age < 18):
+                                check_results[key] = "Yes"
+                            else:
+                                check_results[key] = "No"
+                    else: 
+                        check_results[key] = "N/A"
+                                
+        print(check_results)
+        return check_results
+    
+    # US 27 Include individual ages
+    def include_ages(self):
+        check_results = {}
+        individuals = self.get_individuals()
+        for indi_key in individuals:
+            individual = individuals[indi_key]
+            indi_id = individual.get_id()
+            birth_date = individual.get_birth().strftime('%Y-%m-%d')
+            birth = datetime.datetime.strptime(birth_date,"%Y-%m-%d")
+            death_date = individual.get_death()
+            present_date = date.today().strftime('%Y-%m-%d')
+            if death_date:
+                death_date = individual.get_death().strftime('%Y-%m-%d')
+                death = datetime.datetime.strptime(death_date,"%Y-%m-%d")
+                age = death.year - birth.year
+                if age < 0:
+                    print("Error in US27: User {i_id} has invalid age".format(i_id=indi_id))                    
+                    check_results[indi_id] = "Error"
+                else:
+                    check_results[indi_id] = age
+            else:
+                today = datetime.datetime.strptime(present_date,"%Y-%m-%d")
+                age = today.year - birth.year 
+                if age < 0:
+                    print("Error in US27: User {i_id} has invalid age".format(i_id=indi_id))                    
+                    check_results[indi_id] = "Error"
+                else:
+                    check_results[indi_id] = age
+        
+        #print("Age", check_results)
+        return check_results
+    
     # US38 Upcoming birthdays
     def upcoming_birthdays(self):
         individuals = self.get_individuals()
@@ -1032,6 +1042,7 @@ class Gedcom:
         results = {}
         for family in families(self):
             husband_name = self.__individual_dict[husband(family)].get_name()
+            #print(husband_name, "Name test")
             wife_name = self.__individual_dict[wife(family)].get_name()
             family_key = '-'.join([husband_name, wife_name])
             if family_key in family_dict:

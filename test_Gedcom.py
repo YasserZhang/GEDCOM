@@ -245,35 +245,35 @@ class TestGedcomParser(unittest.TestCase):
         for key in ground_truths:
             self.assertTrue(key in check_results)
             self.assertEqual(ground_truths[key], check_results[key])
-#
-#    # Testcase US 22
-#    def test_unique_ids(self, file_path='test_files/Family.ged',
-#                                  ground_truth_file_path='test_files/testcase_22.json'):
-#        ged = Gedcom()
-#        ged.parse(file_path)
-#        ged.print_individuals()
-#        ged.print_families()
-#        check_results = ged.check_unique_id()
-#        with open(ground_truth_file_path, 'r') as f:
-#            ground_truths = json.load(f)
-#        for key in ground_truths:
-#            self.assertTrue(key in check_results)
-#            self.assertEqual(ground_truths[key], check_results[key])
-#
-#    #Testcase US23
-#    def test_same_name_dob(self, file_path='test_files/Family.ged',
-#                                  ground_truth_file_path='test_files/testcase_23.json'):
-#        ged = Gedcom()
-#        ged.parse(file_path)
-#        ged.print_individuals()
-#        ged.print_families()
-#        check_results = ged.check_same_name_dob()
-#        with open(ground_truth_file_path, 'r') as f:
-#            ground_truths = json.load(f)
-#        for key in ground_truths:
-#            self.assertTrue(key in check_results)
-#            self.assertEqual(ground_truths[key], check_results[key])
-#
+
+    # Testcase US 27
+    def test_s4us27_include_ages(self, file_path='test_files/Family.ged',
+                                  ground_truth_file_path='test_files/testcase_27.json'):
+        ged = Gedcom()
+        ged.parse(file_path)
+        ged.print_individuals()
+        ged.print_families()
+        check_results = ged.include_ages()
+        with open(ground_truth_file_path, 'r') as f:
+            ground_truths = json.load(f)
+        for key in ground_truths:
+            self.assertTrue(key in check_results)
+            self.assertEqual(ground_truths[key], check_results[key])
+        
+    #Testcase US33
+    def test_s4us33_orphans(self, file_path='test_files/Family.ged',
+                                  ground_truth_file_path='test_files/testcase_33.json'):
+        ged = Gedcom()
+        ged.parse(file_path)
+        ged.print_individuals()
+        ged.print_families()
+        check_results = ged.check_orphans()
+        with open(ground_truth_file_path, 'r') as f:
+            ground_truths = json.load(f)
+        for key in ground_truths:
+            self.assertTrue(key in check_results)
+            self.assertEqual(ground_truths[key], check_results[key])
+
     # Testcase US 18
     def test_s3us18_no_one_marries_sibling(self, file_path='test_files/Family.ged'):
         ged = Gedcom()
