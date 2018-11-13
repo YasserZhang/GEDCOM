@@ -977,14 +977,15 @@ class Gedcom:
                 upcoming_list.append(indi_id)
                 # print(int(start_date[0]), int(birth_date[0]))
                 check_results[indi_id] = "Yes"
+                print("SPRINT 4 ATTENTION in US38: Individual {i} will have birthday in the next 30 days".format(i=indi_id))
             elif int(start_date[0]) - int(birth_date[0]) == 0 and \
                         int(start_date[1]) >= int(birth_date[1]):
                 upcoming_list.append(indi_id)
                 # print(int(start_date[0]), int(birth_date[0]))
                 check_results[indi_id] = "Yes"
+                print("SPRINT 4 ATTENTION in US38: Individual {i} will have birthday in the next 30 days".format(i=indi_id))
             else:
                 # print(False)
-                print("SPRINT 4 ERROR in US38: Individual {i} does not have birthday in the next 30 days".format(i=indi_id))
                 check_results[indi_id] = "No"
         #print(upcoming_list)
         return check_results
@@ -1003,25 +1004,24 @@ class Gedcom:
             start_date = date.today() + datetime.timedelta(+30)
             start_date = str(start_date).split('-')[1:]
             # print(start_date)
-
             if fam_marriage_date:
                 if int(start_date[0]) - int(fam_marriage_date[0]) == 1 and \
                             int(start_date[1]) <= int(fam_marriage_date[1]):
                     upcoming_list.append(fam_id)
                     # print(int(start_date[0]), int(fam_marriage_date[0]))
                     check_results[fam_id] = "Yes"
+                    print("SPRINT 4 ATTENTION in US39: Family {f} will have their anniversary in the next 30 days".format(f=fam_id))
                 elif int(start_date[0]) - int(fam_marriage_date[0]) == 0 and \
                             int(start_date[1]) >= int(fam_marriage_date[1]):
                     upcoming_list.append(fam_id)
                     # print(int(start_date[0]), int(fam_marriage_date[0]))
                     check_results[fam_id] = "Yes"
+                    print("SPRINT 4 ATTENTION in US39: Family {f} will have their anniversary in the next 30 days".format(f=fam_id))
                 else:
                     # print(False)
-                    print("SPRINT 4 ERROR in US39: Family {f} does not have their anniversary in the next 30 days".format(f=fam_id))
                     check_results[fam_id] = "No"
             else:
                 # print(False)
-                print("SPRINT 4 ERROR in US39: Family {f} does not have their anniversary in the next 30 days".format(f=fam_id))
                 check_results[fam_id] = "No"
         #print(upcoming_list)
         return check_results
