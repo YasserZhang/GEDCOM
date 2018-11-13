@@ -251,8 +251,6 @@ class TestGedcomParser(unittest.TestCase):
                                   ground_truth_file_path='test_files/testcase_27.json'):
         ged = Gedcom()
         ged.parse(file_path)
-        ged.print_individuals()
-        ged.print_families()
         check_results = ged.include_ages()
         with open(ground_truth_file_path, 'r') as f:
             ground_truths = json.load(f)
@@ -265,8 +263,6 @@ class TestGedcomParser(unittest.TestCase):
                                   ground_truth_file_path='test_files/testcase_33.json'):
         ged = Gedcom()
         ged.parse(file_path)
-        ged.print_individuals()
-        ged.print_families()
         check_results = ged.check_orphans()
         with open(ground_truth_file_path, 'r') as f:
             ground_truths = json.load(f)

@@ -745,7 +745,7 @@ class Gedcom:
                     check_results[fam_id] = 'No'
             else:
                 check_results[fam_id] = 'No'
-        print(large_age_difference)
+        #print(large_age_difference)
         return check_results
 
     #US35 List recent births
@@ -861,7 +861,8 @@ class Gedcom:
         #print("US31: List of individuals that are single:")
         #print(*unmarried_list, sep=", ")
         print("SPRINT 3 ERROR in US31: List of individuals that are NOT single:")
-        print(*married_list, sep=", ")
+        print("        ", ", ".join(married_list))
+        #print(*married_list, sep=", ")
         return check_results
 
     # US30: List living married
@@ -886,13 +887,11 @@ class Gedcom:
         #print(*married_list, sep=", ")
 
         print("SPRINT 3 ERROR in US30: List of individuals that are NOT married:")
-        print(*unmarried_list, sep=", ")
+        print("        ", ", ".join(unmarried_list))
+        #print(*unmarried_list, sep=", ")
         return check_results
 
     #Sprint 4   
-    
-    
-    
     # US 33
     def check_orphans(self):
         families = self.get_families()
@@ -923,7 +922,7 @@ class Gedcom:
                     if husb_death and wife_death:
                         if child_deathday:
                             check_results[key] = "Error"
-                            print("Error in US33: The child {c} is not alive".format(c=key))
+                            print("SPRINT 4 ERROR in US33: The child {c} is not alive".format(c=key))
                         else:    
                             today = datetime.datetime.strptime(present_date,"%Y-%m-%d")
                             age = today.year - childBirth.year
@@ -933,8 +932,6 @@ class Gedcom:
                                 check_results[key] = "No"
                     else: 
                         check_results[key] = "N/A"
-                                
-        print(check_results)
         return check_results
     
     # US 27 Include individual ages
@@ -953,7 +950,7 @@ class Gedcom:
                 death = datetime.datetime.strptime(death_date,"%Y-%m-%d")
                 age = death.year - birth.year
                 if age < 0:
-                    print("Error in US27: User {i_id} has invalid age".format(i_id=indi_id))                    
+                    print("SPRINT 4 ERROR in US27: User {i_id} has invalid age".format(i_id=indi_id))                    
                     check_results[indi_id] = "Error"
                 else:
                     check_results[indi_id] = age
@@ -961,12 +958,10 @@ class Gedcom:
                 today = datetime.datetime.strptime(present_date,"%Y-%m-%d")
                 age = today.year - birth.year 
                 if age < 0:
-                    print("Error in US27: User {i_id} has invalid age".format(i_id=indi_id))                    
+                    print("SPRINT 4 ERROR in US27: User {i_id} has invalid age".format(i_id=indi_id))                    
                     check_results[indi_id] = "Error"
                 else:
                     check_results[indi_id] = age
-        
-        #print("Age", check_results)
         return check_results
     
     # US38 Upcoming birthdays
@@ -1130,7 +1125,8 @@ class Gedcom:
                 check_results[indi_id] = "No"
 
         print("SPRINT 4 ERROR in US29: List of individuals that are deceased:")
-        print(*deceased_list, sep=", ")
+        print("        ", ", ".join(deceased_list))
+        #print(*deceased_list, sep=", ")
         return check_results
 
 # Families
